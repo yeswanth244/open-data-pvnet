@@ -26,5 +26,11 @@ We are looking for volunteers with the following skills:
 
 ---
 
+## Getting Started
+
+Ready to dive in? Check out our [Getting Started Guide](getting_started.md) for an introduction to the key concepts and how you can contribute effectively.
+
+---
+
 If you're passionate about **renewable energy, open-source collaboration, and sustainability**, please join us in advancing solar forecasting solutions for a better future! 🌍☀️✨
 
