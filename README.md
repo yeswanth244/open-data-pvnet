@@ -3,6 +3,8 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+[![ease of contribution: easy](https://img.shields.io/badge/ease%20of%20contribution:%20easy-32bd50)](https://github.com/openclimatefix/ocf-meta-repo?tab=readme-ov-file#how-easy-is-it-to-get-involved)
+
 ## Scope
 
 We're building an open-source solar forecasting pipeline to integrate with the OCF's [PVNet](https://github.com/openclimatefix/pvnet) using publicly available data to predict solar generation at the national level, starting with the UK. Eventually, we aim to achieve **global coverage**! 🌍
@@ -31,6 +33,14 @@ We are looking for volunteers with the following skills:
 
 If you're passionate about **renewable energy, open-source collaboration, and sustainability**, please join us in advancing solar forecasting solutions for a better future! 🌍☀️✨
 
+## Contributing and community
+
+[![issues badge](https://img.shields.io/github/issues/openclimatefix/open-data-pvnet?color=FFAC5F)](https://github.com/openclimatefix/open-data-pvnet/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
+
+- PR's are welcome! See the [Organisation Profile](https://github.com/openclimatefix) for details on contributing
+- Find out about our other projects in the [here](https://github.com/openclimatefix/.github/tree/main/profile)
+- Check out the [OCF blog](https://openclimatefix.org/blog) for updates
+- Follow OCF on [LinkedIn](https://uk.linkedin.com/company/open-climate-fix)
 
 ## Contributors ✨
 
@@ -55,3 +65,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+
+*Part of the [Open Climate Fix](https://github.com/orgs/openclimatefix/people) community.*
+
+[![OCF Logo](https://cdn.prod.website-files.com/62d92550f6774db58d441cca/6324a2038936ecda71599a8b_OCF_Logo_black_trans.png)](https://openclimatefix.org)
