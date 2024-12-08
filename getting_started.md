@@ -4,18 +4,19 @@ Welcome to the Solar Forecasting project! This document will introduce you to th
 
 ## Table of Contents
 1. [Introduction to Solar Forecasting](#introduction-to-solar-forecasting)
-2. [What is NWP Data?](#what-is-nwp-data)
-3. [Understanding Zarr Format](#understanding-zarr-format)
-4. [Target Data: What is UK PVlive?](#target-data-what-is-uk-pvlive)
-5. [Basics of Machine Learning for Solar Forecasting](#basics-of-machine-learning-for-solar-forecasting)
-6. [APIs and Data Retrieval](#apis-and-data-retrieval)
-7. [Data Pipelines for Solar Forecasting](#data-pipelines-for-solar-forecasting)
-8. [Benchmarks and Comparisons](#benchmarks-and-comparisons)
-9. [Geographical Adaptability](#geographical-adaptability)
-10. [Key Tools and Technologies](#key-tools-and-technologies)
-11. [Common Terminology](#common-terminology)
-12. [Expected Knowledge and Skills](#expected-knowledge-and-skills)
-13. [How This Project Fits into Renewable Energy](#how-this-project-fits-into-renewable-energy)
+2. [Coding Style](#coding-style)
+3. [What is NWP Data?](#what-is-nwp-data)
+4. [Understanding Zarr Format](#understanding-zarr-format)
+5. [Target Data: What is UK PVlive?](#target-data-what-is-uk-pvlive)
+6. [Basics of Machine Learning for Solar Forecasting](#basics-of-machine-learning-for-solar-forecasting)
+7. [APIs and Data Retrieval](#apis-and-data-retrieval)
+8. [Data Pipelines for Solar Forecasting](#data-pipelines-for-solar-forecasting)
+9. [Benchmarks and Comparisons](#benchmarks-and-comparisons)
+10. [Geographical Adaptability](#geographical-adaptability)
+11. [Key Tools and Technologies](#key-tools-and-technologies)
+12. [Common Terminology](#common-terminology)
+13. [Expected Knowledge and Skills](#expected-knowledge-and-skills)
+14. [How This Project Fits into Renewable Energy](#how-this-project-fits-into-renewable-energy)
 
 ---
 
@@ -24,11 +25,23 @@ Solar forecasting is the process of predicting the amount of solar energy that w
 
 ---
 
+## Coding Style
+To ensure code quality and maintain consistency, we follow the [Open Climate Fix (OCF) Coding Style](https://github.com/openclimatefix/.github/blob/main/coding_style.md). All contributors are expected to adhere to these standards.
+
+### Key Points:
+- **Formatting**: Use `black` with a line length of 100 characters.
+- **Linting**: Run `ruff` to catch and fix style violations.
+- **Docstrings**: Write Google-style docstrings for all functions, classes, and modules.
+- **Pre-commit Hooks**: Install pre-commit hooks to automatically format and lint your code before commits.
+
+Refer to the full [OCF Coding Style Guide](https://github.com/openclimatefix/.github/blob/main/coding_style.md) for detailed instructions.
+
+---
+
 ## What is NWP Data?
 **Numerical Weather Prediction (NWP)** data uses mathematical models of the atmosphere and oceans to forecast weather. It predicts various atmospheric conditions such as temperature, pressure, wind speed, humidity, precipitation type and amount, cloud cover, and sometimes even surface conditions and air quality—all of which are crucial for solar forecasting.
 
 https://en.wikipedia.org/wiki/Numerical_weather_prediction
-
 
 ---
 
