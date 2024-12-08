@@ -24,6 +24,15 @@
       "contributions": [
         "projectManagement"
       ]
+    },
+    {
+      "login": "jcamier",
+      "name": "Jack Camier",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14153557?v=4",
+      "profile": "https://github.com/jcamier",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
