@@ -86,4 +86,8 @@ node_modules/
 *.key
 
 # Git-specific files
+<<<<<<< HEAD
 *.orig
+=======
+*.orig
+>>>>>>> main
