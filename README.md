@@ -31,6 +31,12 @@ We are looking for volunteers with the following skills:
 
 ---
 
+## Getting Started
+
+Ready to dive in? Check out our [Getting Started Guide](getting_started.md) for an introduction to the key concepts and how you can contribute effectively.
+
+---
+
 If you're passionate about **renewable energy, open-source collaboration, and sustainability**, please join us in advancing solar forecasting solutions for a better future! 🌍☀️✨
 
 ## Contributing and community
@@ -41,6 +47,13 @@ If you're passionate about **renewable energy, open-source collaboration, and su
 - Find out about our other projects in the [here](https://github.com/openclimatefix/.github/tree/main/profile)
 - Check out the [OCF blog](https://openclimatefix.org/blog) for updates
 - Follow OCF on [LinkedIn](https://uk.linkedin.com/company/open-climate-fix)
+
+---
+
+## GitHub Project
+Explore our project board to track progress and tasks: [Open Climate Fix Solar Project Board](https://github.com/orgs/openclimatefix/projects/36)
+
+---
 
 ## Contributors ✨
 
