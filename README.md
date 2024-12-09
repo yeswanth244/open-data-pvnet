@@ -70,3 +70,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 *Part of the [Open Climate Fix](https://github.com/orgs/openclimatefix/people) community.*
 
 [![OCF Logo](https://cdn.prod.website-files.com/62d92550f6774db58d441cca/6324a2038936ecda71599a8b_OCF_Logo_black_trans.png)](https://openclimatefix.org)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). See the LICENSE file for details.
