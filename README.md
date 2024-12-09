@@ -48,6 +48,13 @@ If you're passionate about **renewable energy, open-source collaboration, and su
 - Check out the [OCF blog](https://openclimatefix.org/blog) for updates
 - Follow OCF on [LinkedIn](https://uk.linkedin.com/company/open-climate-fix)
 
+---
+
+## GitHub Project
+Explore our project board to track progress and tasks: [Open Climate Fix Solar Project Board](https://github.com/orgs/openclimatefix/projects/36)
+
+---
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
