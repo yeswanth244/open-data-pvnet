@@ -73,7 +73,26 @@ https://wiki.earthdata.nasa.gov/display/ESO/Zarr+Format
 ---
 
 ## Target Data: What is UK PVlive?
-UK PVlive provides national solar generation data, accessible via API. This data serves as a "ground truth" for training and evaluating solar forecasting models.
+
+[UK PVlive](https://www.solar.sheffield.ac.uk/pvlive/) provides national solar generation data, accessible via API, and is maintained by the University of Sheffield. This dataset serves as a reliable "ground truth" for training and evaluating solar forecasting models.
+
+### Key Features:
+- **National Solar Generation Data**: Offers estimates of real-time solar photovoltaic (PV) generation across the UK.
+- **Granularity**: Provides data at both national and regional levels, allowing for detailed analysis.
+- **Frequency**: Updated every 30 minutes, ensuring near real-time data availability for forecasting and validation.
+- **Capacity Data**: Includes information on installed PV capacity, which is crucial for normalizing generation data.
+- **Historical Data**: Offers access to historical records for long-term analysis and model training.
+- **API Access**: Enables automated data retrieval, simplifying integration with machine learning pipelines.
+
+### Applications:
+- **Ground Truth for Model Training**: Serves as a reliable dataset to validate solar forecasting models.
+- **Capacity Trend Analysis**: Tracks changes in installed PV capacity over time to analyze the growth of solar energy adoption.
+- **Benchmarking**: Provides a baseline for comparing forecasting models against observed solar generation.
+
+### Why It Matters:
+UK PVlive is a critical resource for solar forecasting because it combines high-quality, timely data with extensive historical records. Its regional and national-level granularity enables robust analysis and supports model generalization.
+
+For more information, visit the [PVlive website](https://www.solar.sheffield.ac.uk/pvlive/) or explore their API documentation for data access.
 
 ---
 
@@ -117,6 +136,7 @@ Below is a glossary of key terms that might be useful when working on this proje
 - **Solar Panel Efficiency**: The ratio of the electrical output of a solar panel to the incident sunlight energy, expressed as a percentage.
 - **Capacity Factor**: The ratio of actual energy produced by a solar PV system to the maximum possible energy it could produce over a given period.
 - **Global Horizontal Irradiance (GHI)**: Total solar radiation received on a horizontal surface.
+- **GTI (Global Tilted Irradiance)**: The total solar irradiance received on a tilted surface, accounting for direct, diffuse, and reflected components. It is essential for designing and evaluating the performance of tilted photovoltaic systems.
 - **Direct Normal Irradiance (DNI)**: Solar radiation received directly from the Sun at a perpendicular angle.
 - **Diffuse radiation**: Refers to solar radiation that reaches the Earth's surface after being scattered by molecules, aerosols, or clouds in the atmosphere.
 - **Diffuse Horizontal Irradiance (DHI)**: Solar radiation received indirectly due to scattering in the atmosphere.
@@ -126,11 +146,33 @@ Below is a glossary of key terms that might be useful when working on this proje
 
 ### Weather Forecasting and Numerical Weather Prediction (NWP) Terms
 - **Numerical Weather Prediction (NWP)**: The use of mathematical models to simulate atmospheric processes and predict future weather conditions.
+- **Gridded Data**: Data arranged in a regular, grid-like structure, where each cell or grid point represents a specific geographical area and contains corresponding data values (e.g., temperature, solar irradiance, or wind speed).
 - **Global Forecast System (GFS)**: A global NWP model produced by the National Weather Service that provides weather forecasts up to 16 days in advance.
 - **European Centre for Medium-Range Weather Forecasts (ECMWF)**: An independent intergovernmental organization that produces highly accurate medium-range weather forecasts.
 - **Model Resolution**: The spatial and temporal granularity of an NWP model, usually measured in kilometers or degrees.
 - **Initialization**: The process of incorporating current observational data into a model to start a forecast.
 - **Boundary Conditions**: Data input to a weather model defining conditions at the edges of the modeled area.
+
+---
+
+### Geospatial Terms
+
+- **Geostationary**: A satellite orbit where the satellite remains fixed relative to a specific point on Earth’s surface, providing continuous observation of the same region. Commonly used in weather monitoring and solar radiation measurement.
+- **Geospatial Data**: Information about objects, events, or phenomena on Earth's surface, represented by geographic coordinates and often used in mapping and analysis.
+- **Latitude**: The angular distance of a location north or south of the equator, measured in degrees. Important for determining solar angles and irradiance.
+- **Longitude**: The angular distance of a location east or west of the prime meridian, measured in degrees. Used in conjunction with latitude to pinpoint geographic locations.
+- **Spatial Resolution**: The level of detail in a geospatial dataset, often defined by the size of the grid cells or pixels representing the data. Higher resolution provides more detail but requires more storage and processing power.
+- **Temporal Resolution**: The frequency at which data is collected or updated over time, important for capturing changes in weather or solar irradiance.
+- **Digital Elevation Model (DEM)**: A 3D representation of Earth's surface, showing elevation data. DEMs are used in solar modeling to account for shading and terrain effects.
+- **Remote Sensing**: The acquisition of information about Earth's surface using satellites or aircraft. Remote sensing is critical for gathering data on cloud cover, aerosols, and solar radiation.
+- **Coordinate Reference System (CRS)**: A system used to define how geographic data is projected onto a flat surface, ensuring spatial data is accurately mapped and analyzed.
+- **Raster Data**: A type of geospatial data stored in a grid format, where each cell contains a value representing a specific property (e.g., temperature, irradiance, or elevation).
+- **Vector Data**: A type of geospatial data that represents geographic features using points, lines, and polygons, often used for mapping boundaries, roads, and other discrete features.
+- **Topographic Shading**: The effect of terrain features (e.g., mountains, hills) on sunlight exposure, influencing solar irradiance calculations.
+- **GeoJSON**: A format for encoding geographic data structures in JSON, often used for sharing and visualizing geospatial data on the web.
+- **GIS (Geographic Information System)**: A system designed to capture, store, manipulate, analyze, and visualize spatial or geographic data, widely used in solar and weather forecasting.
+- **Great Circle Distance**: The shortest distance between two points on a sphere, useful for calculating distances between locations on Earth.
+- **Solar Declination Angle**: The angle between the Sun's rays and the equatorial plane, varying throughout the year and influencing solar irradiance calculations.
 
 ---
 
