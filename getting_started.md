@@ -97,12 +97,62 @@ For more information, visit the [PVlive website](https://www.solar.sheffield.ac.
 ---
 
 ## Basics of Machine Learning for Solar Forecasting
-Discover key ML concepts such as data splitting, feature engineering, and model evaluation, all tailored to the solar forecasting domain.
+
+This project applies core machine learning (ML) principles to the domain of solar forecasting. Below is an overview of the essential concepts, tailored to this project:
+
+- **Data Preparation**: Preparing datasets by splitting them into training, validation, and testing sets is fundamental. Refer to the [Data Pipelines for Solar Forecasting](#data-pipelines-for-solar-forecasting) section for details on batch creation and pipeline design.
+- **Feature Engineering**: Identifying and transforming input variables (e.g., solar irradiance, temperature, and cloud cover) into meaningful features for the ML model. See [Common Terminology](#common-terminology) for definitions of relevant features.
+- **Model Selection**: Choosing models like Convolutional Neural Networks (CNNs) for spatial data or transformers for advanced pattern recognition. Refer to [Machine Learning Terms](#machine-learning-terms) for details on architectures.
+- **Evaluation**: Using metrics such as MAE, RMSE, and R² to assess model performance. See [Machine Learning Terms](#machine-learning-terms) for metric descriptions.
+- **Optimization**: Applying techniques like gradient descent and regularization to improve model performance. Refer to [Optimization and Cost Functions](#machine-learning-terms) for more information.
+
+For contributors unfamiliar with these concepts, the [Machine Learning Terms](#machine-learning-terms) section provides a glossary of key terms to get started.
 
 ---
 
 ## APIs and Data Retrieval
-Learn how to use APIs to fetch solar generation data and capacity information, critical for building datasets.
+
+APIs play a crucial role in fetching real-time and historical data required for solar forecasting. This section outlines key concepts and resources for retrieving data such as solar generation, capacity, and weather information.
+
+### Key APIs for Solar Forecasting
+
+1. **PVlive API**
+   [Target Data: What is UK PVlive?](#target-data-what-is-uk-pvlive)
+
+2. **Weather APIs**
+   Accessing weather data is critical for creating feature-rich datasets. Commonly used APIs include:
+   - **OpenWeatherMap**: Provides current and historical weather data, including temperature, cloud cover, and wind speed.
+   - **Meteomatics API**: Offers high-resolution gridded weather data suitable for forecasting applications.
+   - **NOAA’s NCDC API**: Provides historical climate data for the US and other regions.
+
+3. **Satellite Data APIs**
+   Satellite imagery and radiance data are invaluable for analyzing cloud cover and solar irradiance.
+   - **Copernicus Atmosphere Monitoring Service (CAMS)**: Offers aerosol, cloud, and solar radiation data.
+   - **NASA’s POWER API**: Provides meteorological and solar datasets tailored for renewable energy applications.
+
+### Best Practices for Using APIs
+
+- **API Keys**: Most APIs require authentication via an API key. Store keys securely using environment variables or secret management tools.
+- **Rate Limits**: Adhere to API usage policies to avoid exceeding request limits. Use caching to minimize repeated calls for the same data.
+- **Batching Requests**: For large datasets, make batched requests to ensure efficient retrieval within rate limits.
+- **Data Normalization**: Standardize data from multiple sources to ensure consistency in units (e.g., W/m² for solar irradiance).
+
+### Example Workflow for Data Retrieval
+
+1. **Set Up API Clients**: Use Python libraries like `requests`, `httpx`, or specific SDKs provided by the API services.
+2. **Query Data**: Fetch solar and weather data using appropriate endpoints.
+3. **Save Locally**: Store retrieved data in formats like CSV, JSON, or cloud-based storage like Zarr.
+4. **Integrate with Pipelines**: Use the retrieved data to create features or targets for machine learning models.
+
+### Tools for API Interaction
+
+- **Python Libraries**:
+  - `requests` or `httpx` for making HTTP requests.
+  - `pandas` for data manipulation and storage.
+- **API Testing Tools**:
+  - Postman or cURL for testing API endpoints before integration.
+
+By effectively leveraging APIs like PVlive and weather services, contributors can build robust datasets for solar forecasting and improve model accuracy.
 
 ---
 
