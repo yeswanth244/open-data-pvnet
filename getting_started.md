@@ -136,7 +136,7 @@ Below is a glossary of key terms that might be useful when working on this proje
 - **Solar Panel Efficiency**: The ratio of the electrical output of a solar panel to the incident sunlight energy, expressed as a percentage.
 - **Capacity Factor**: The ratio of actual energy produced by a solar PV system to the maximum possible energy it could produce over a given period.
 - **Global Horizontal Irradiance (GHI)**: Total solar radiation received on a horizontal surface.
-- **GTI (Global Tilted Irradiance)**: The total solar irradiance received on a tilted surface, accounting for direct, diffuse, and reflected components. It is essential for designing and evaluating the performance of tilted photovoltaic systems.
+- **Global Tilted Irradiance (GTI)**: The total solar irradiance received on a tilted surface, accounting for direct, diffuse, and reflected components. It is essential for designing and evaluating the performance of tilted photovoltaic systems.
 - **Direct Normal Irradiance (DNI)**: Solar radiation received directly from the Sun at a perpendicular angle.
 - **Diffuse radiation**: Refers to solar radiation that reaches the Earth's surface after being scattered by molecules, aerosols, or clouds in the atmosphere.
 - **Diffuse Horizontal Irradiance (DHI)**: Solar radiation received indirectly due to scattering in the atmosphere.
