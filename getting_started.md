@@ -9,7 +9,7 @@ Welcome to the Solar Forecasting project! This document will introduce you to th
 4. [Understanding Zarr Format](#understanding-zarr-format)
 5. [Target Data: What is UK PVlive?](#target-data-what-is-uk-pvlive)
 6. [Basics of Machine Learning for Solar Forecasting](#basics-of-machine-learning-for-solar-forecasting)
-7. [Datasets for Solar Forecasting](datasets.md)
+7. [Datasets for Solar Forecasting](#datasets-for-solar-forecasting)
 8. [APIs and Data Retrieval](#apis-and-data-retrieval)
 9. [Data Pipelines for Solar Forecasting](#data-pipelines-for-solar-forecasting)
 10. [Benchmarks and Comparisons](#benchmarks-and-comparisons)
@@ -108,6 +108,14 @@ This project applies core machine learning (ML) principles to the domain of sola
 - **Optimization**: Applying techniques like gradient descent and regularization to improve model performance. Refer to [Optimization and Cost Functions](#machine-learning-terms) for more information.
 
 For contributors unfamiliar with these concepts, the [Machine Learning Terms](#machine-learning-terms) section provides a glossary of key terms to get started.
+
+---
+
+## Datasets for Solar Forecasting
+
+Datasets form the backbone of solar forecasting by providing the historical and real-time data required for model training and evaluation. This project leverages a variety of datasets, including weather, solar generation, and climate data.
+
+For a detailed list of datasets and their descriptions, please refer to the [Datasets Guide](datasets.md).
 
 ---
 
