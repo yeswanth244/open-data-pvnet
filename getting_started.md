@@ -9,14 +9,15 @@ Welcome to the Solar Forecasting project! This document will introduce you to th
 4. [Understanding Zarr Format](#understanding-zarr-format)
 5. [Target Data: What is UK PVlive?](#target-data-what-is-uk-pvlive)
 6. [Basics of Machine Learning for Solar Forecasting](#basics-of-machine-learning-for-solar-forecasting)
-7. [APIs and Data Retrieval](#apis-and-data-retrieval)
-8. [Data Pipelines for Solar Forecasting](#data-pipelines-for-solar-forecasting)
-9. [Benchmarks and Comparisons](#benchmarks-and-comparisons)
-10. [Geographical Adaptability](#geographical-adaptability)
-11. [Key Tools and Technologies](#key-tools-and-technologies)
-12. [Common Terminology](#common-terminology)
-13. [Expected Knowledge and Skills](#expected-knowledge-and-skills)
-14. [How This Project Fits into Renewable Energy](#how-this-project-fits-into-renewable-energy)
+7. [Datasets for Solar Forecasting](#datasets-for-solar-forecasting)
+8. [APIs and Data Retrieval](#apis-and-data-retrieval)
+9. [Data Pipelines for Solar Forecasting](#data-pipelines-for-solar-forecasting)
+10. [Benchmarks and Comparisons](#benchmarks-and-comparisons)
+11. [Geographical Adaptability](#geographical-adaptability)
+12. [Key Tools and Technologies](#key-tools-and-technologies)
+13. [Common Terminology](#common-terminology)
+14. [Helpful Knowledge and Skills](#helpful-knowledge-and-skills)
+15. [How This Project Fits into Renewable Energy](#how-this-project-fits-into-renewable-energy)
 
 ---
 
@@ -107,6 +108,14 @@ This project applies core machine learning (ML) principles to the domain of sola
 - **Optimization**: Applying techniques like gradient descent and regularization to improve model performance. Refer to [Optimization and Cost Functions](#machine-learning-terms) for more information.
 
 For contributors unfamiliar with these concepts, the [Machine Learning Terms](#machine-learning-terms) section provides a glossary of key terms to get started.
+
+---
+
+## Datasets for Solar Forecasting
+
+Datasets form the backbone of solar forecasting by providing the historical and real-time data required for model training and evaluation. This project leverages a variety of datasets, including weather, solar generation, and climate data.
+
+For a detailed list of datasets and their descriptions, please refer to the [Datasets Guide](datasets.md).
 
 ---
 
@@ -289,6 +298,7 @@ For more details, refer to the [WMO Cloud Identification Guide](https://cloudatl
 - **Gridded Data**: Data represented in a regular grid structure, where each cell corresponds to a specific geographic area. Common in weather and climate datasets for efficient analysis.
 - **NetCDF (Network Common Data Form)**: A self-describing, machine-independent data format designed for storing and sharing array-oriented scientific data. Commonly used in meteorology, oceanography, and other geosciences, NetCDF supports large datasets and includes metadata for describing the data's structure and meaning.
 - **HDF5 (Hierarchical Data Format version 5)**: A versatile data model that supports the storage of large, complex datasets in a hierarchical structure. HDF5 is widely used for scientific computing, offering high performance, scalability, and the ability to handle large amounts of data efficiently.
+- **GRIB (GRIdded Binary)**: A concise data format commonly used in meteorology to store historical and forecast weather data. GRIB files are optimized for large datasets, representing grid-based information such as temperature, wind speed, and precipitation. They are often used by Numerical Weather Prediction (NWP) models and are known for their efficient storage and compression.
 - **Power Units**:
   - **Watt (W)**: The basic unit of power in the International System of Units (SI), representing one joule per second.
   - **Kilowatt (kW)**: Equal to 1,000 watts, commonly used to measure the capacity of small solar systems.
