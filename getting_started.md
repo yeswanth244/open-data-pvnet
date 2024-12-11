@@ -121,14 +121,18 @@ APIs play a crucial role in fetching real-time and historical data required for 
 
 2. **Weather APIs**
    Accessing weather data is critical for creating feature-rich datasets. Commonly used APIs include:
-   - **OpenWeatherMap**: Provides current and historical weather data, including temperature, cloud cover, and wind speed.
-   - **Meteomatics API**: Offers high-resolution gridded weather data suitable for forecasting applications.
-   - **NOAA’s NCDC API**: Provides historical climate data for the US and other regions.
+   - **Met Office DataPoint**: Provides UK-specific weather data, including forecasts, observations, and warnings. Data is available in JSON or XML formats for easy integration. [Learn more](https://www.metoffice.gov.uk/services/data/datapoint).
+   - **Copernicus Atmosphere Monitoring Service (CAMS)**: Offers aerosol, cloud, and solar radiation data, with high-resolution forecasts and reanalysis datasets. [Learn more](https://atmosphere.copernicus.eu/).
+   - **European Centre for Medium-Range Weather Forecasts (ECMWF)**: Provides global atmospheric data and reanalysis datasets, including ERA5, for solar radiation and historical weather data. [Learn more](https://www.ecmwf.int/en/forecasts/datasets).
+   - **OpenWeatherMap**: Offers current and historical weather data, including temperature, cloud cover, and wind speed, with global coverage. [Learn more](https://openweathermap.org/).
+   - **Meteomatics API**: Provides high-resolution gridded weather data, including solar radiation, temperature, and wind speed, suitable for UK and European applications. [Learn more](https://www.meteomatics.com/en/weather-api/).
 
 3. **Satellite Data APIs**
-   Satellite imagery and radiance data are invaluable for analyzing cloud cover and solar irradiance.
-   - **Copernicus Atmosphere Monitoring Service (CAMS)**: Offers aerosol, cloud, and solar radiation data.
-   - **NASA’s POWER API**: Provides meteorological and solar datasets tailored for renewable energy applications.
+   Satellite imagery and radiance data are invaluable for analyzing cloud cover and solar irradiance:
+   - **Copernicus Atmosphere Monitoring Service (CAMS)**: Provides satellite-based aerosol, cloud, and solar radiation data. [Learn more](https://atmosphere.copernicus.eu/).
+   - **NASA’s POWER API**: Offers meteorological and solar datasets tailored for renewable energy applications, including European regions. [Learn more](https://power.larc.nasa.gov/).
+   - **EUMETSAT**: Europe’s satellite-based service providing weather and climate data, including cloud cover and solar radiation products. [Learn more](https://www.eumetsat.int/).
+
 
 ### Best Practices for Using APIs
 
@@ -167,7 +171,7 @@ Understand the importance of benchmarking and how our models compare to existing
 ---
 
 ## Geographical Adaptability
-This project isn't limited to the UK. Learn how it can be adapted to other regions and data sources.
+This project won't be limited to the UK eventually. Learn how it can be adapted to other regions and data sources.
 
 ---
 
@@ -202,6 +206,11 @@ Below is a glossary of key terms that might be useful when working on this proje
 - **Model Resolution**: The spatial and temporal granularity of an NWP model, usually measured in kilometers or degrees.
 - **Initialization**: The process of incorporating current observational data into a model to start a forecast.
 - **Boundary Conditions**: Data input to a weather model defining conditions at the edges of the modeled area.
+- **ERA5**: A global reanalysis dataset produced by ECMWF, providing hourly data on weather, atmospheric conditions, and other variables. It is widely used in climate research and weather model training due to its high spatial and temporal resolution.
+- **UFS Replay**: Historical weather data reanalyzed with the Unified Forecast System (UFS), often used to train or test weather forecasting models.
+- **ECMWF IFS (Integrated Forecast System)**: A live numerical weather prediction model from ECMWF, delivering global forecasts for various atmospheric variables.
+- **ARCO-ERA5**: A variant of ERA5 dataset tailored for specific applications, often preprocessed to streamline analysis.
+- **OCF DWD Archive**: Historical weather data from the German Weather Service (DWD), curated by Open Climate Fix for renewable energy and forecasting applications.
 
 ---
 
@@ -276,6 +285,10 @@ For more details, refer to the [WMO Cloud Identification Guide](https://cloudatl
 - **Ground Truth**: Data collected on-site (e.g., solar generation data from PV systems) used to validate predictions.
 - **Weather Station**: A facility with instruments and equipment to measure atmospheric conditions such as temperature, humidity, and wind speed.
 - **Time Series Data**: Data points collected or recorded at time-ordered intervals, often used in forecasting.
+- **Reanalysis Data**: A blend of observational data and model output to create a consistent historical record of atmospheric variables. Examples include ERA5 and UFS Replay datasets.
+- **Gridded Data**: Data represented in a regular grid structure, where each cell corresponds to a specific geographic area. Common in weather and climate datasets for efficient analysis.
+- **NetCDF (Network Common Data Form)**: A self-describing, machine-independent data format designed for storing and sharing array-oriented scientific data. Commonly used in meteorology, oceanography, and other geosciences, NetCDF supports large datasets and includes metadata for describing the data's structure and meaning.
+- **HDF5 (Hierarchical Data Format version 5)**: A versatile data model that supports the storage of large, complex datasets in a hierarchical structure. HDF5 is widely used for scientific computing, offering high performance, scalability, and the ability to handle large amounts of data efficiently.
 - **Power Units**:
   - **Watt (W)**: The basic unit of power in the International System of Units (SI), representing one joule per second.
   - **Kilowatt (kW)**: Equal to 1,000 watts, commonly used to measure the capacity of small solar systems.
@@ -376,14 +389,71 @@ For more details, refer to the [WMO Cloud Identification Guide](https://cloudatl
 
 ---
 
-## Expected Knowledge and Skills
-An overview of the skills contributors should have or be willing to learn, such as Python programming and data analysis.
+## Helpful Knowledge and Skills
+Contributing to this project doesn’t require expertise in all areas 😅. We need volunteers with skills or interest in some of the following domains to help us build different parts of the project. Plus, there’s plenty of opportunity to learn as you go!
+
+### Programming and Development
+- **Python Programming**: Familiarity with Python for data analysis, API's, and machine learning workflows.
+- **Version Control**: Experience with Git and GitHub for collaboration and maintaining code quality.
+- **Data Formats**: Understanding of data formats like Zarr, JSON, and CSV, and how to interact with them programmatically.
+
+### Data Engineering
+- **Data Acquisition**: Experience in retrieving large-scale datasets from APIs, cloud storage, or public repositories.
+- **Data Pipelines**: Building and maintaining pipelines for data transformation, cleaning, and preparation.
+- **Cloud Storage**: Expertise in managing data in cloud-optimized formats like Zarr, NetCDF, or HDF5.
+- **Database Management**: Familiarity with databases for large-scale data, such as PostgreSQL, and working with vector databases for embeddings.
+- **Performance Optimization**: Skills in improving data retrieval and processing speed, especially with gridded or geospatial data.
+
+### Data Analysis and Processing
+- **Data Manipulation**: Proficiency with libraries like `pandas`, `numpy`, or `xarray` for transforming and analyzing datasets.
+- **Data Visualization**: Ability to use tools like `matplotlib` or `seaborn` to interpret and present data insights.
+- **Numerical Weather Prediction (NWP) Data**: Familiarity with gridded datasets and their use in weather and solar forecasting.
+
+### Machine Learning and Forecasting
+- **Model Training**: Understanding the basics of training machine learning models, including feature engineering, train-test splitting, and evaluation.
+- **Evaluation Metrics**: Knowledge of metrics like MAE, RMSE, and R² for assessing model performance.
+- **Neural Network Architectures**: Familiarity with models like CNNs and transformers, or a willingness to learn.
+
+### Domain Expertise
+- **Weather Forecasting**: Understanding of Numerical Weather Prediction (NWP) models, weather patterns, and atmospheric science.
+- **Solar Energy**: Knowledge of solar irradiance, photovoltaic systems, and energy metrics like capacity factor or GHI/DNI.
+- **Climate Science**: Familiarity with climate datasets, terms like albedo and aerosols, and their implications for solar energy forecasting.
+- **Geospatial Analysis**: Proficiency in working with geospatial data, coordinate systems, and tools like GIS.
+
+
+### Tools and Technologies
+- **API's**: Experience working with APIs to retrieve data (e.g., PVlive, OpenWeatherMap, CAMS).
+- **Cloud Storage**: Basic understanding of cloud-optimized formats like Zarr for managing large datasets.
+
+### Geospatial and Climate Knowledge
+- **Geospatial Data**: Understanding of concepts like gridded data, coordinate reference systems (CRS), and GIS tools.
+- **Climate and Atmospheric Science**: Knowledge of terms like albedo, aerosols, and solar irradiance, or a willingness to learn their significance.
+
+### Collaboration and Communication
+- **Open Source Development**: Willingness to collaborate in an open-source environment, including code reviews and documentation updates.
+- **Documentation**: Ability to write clear and concise documentation for code and processes to support other contributors.
+
+This project values both existing expertise and a learner's mindset. Contributors who are eager to learn and apply new skills are highly encouraged to join!
 
 ---
 
 ## How This Project Fits into Renewable Energy
-Understand the broader impact of this work and its contribution to a sustainable future.
 
+The transition to renewable energy is one of the most significant challenges—and opportunities—of our time. Solar energy is at the forefront of this movement, offering a clean, abundant, and sustainable alternative to fossil fuels. This project aims to accelerate that transition by improving the accuracy and accessibility of solar forecasting, empowering communities, businesses, and governments to make smarter energy decisions.
+
+### Why It Matters
+- **Enhancing Grid Reliability**: Accurate solar forecasting helps balance energy supply and demand, reducing reliance on fossil fuel backups and preventing grid instability.
+- **Maximizing Solar Potential**: By predicting solar generation more effectively, we can make better use of installed solar capacity and encourage further adoption of solar technology.
+- **Empowering Decision-Making**: Solar forecasts provide critical insights for energy planners, operators, and consumers, enabling smarter choices in energy storage, distribution, and usage.
+- **Global Impact**: As we expand this project to other regions, we contribute to a worldwide effort to reduce carbon emissions and solve climate change.
+
+### Inspiring Collaboration
+This project isn’t just about technology—it’s about building a community of innovators, engineers, and visionaries who share a passion for sustainability. Together, we can:
+- Support the global transition to clean energy!
+- Create open-source tools that benefit everyone, from local communities to international organizations!
+- Inspire others to join the renewable energy movement!
+
+By contributing to this project, you’re not just writing code or analyzing data—you’re making a meaningful impact on the planet and helping pave the way to a sustainable future for many generations to come. 🌍✨
 ---
 
 Thank you for joining us on this journey to advance solar forecasting and renewable energy solutions!
