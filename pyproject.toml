@@ -32,14 +32,18 @@ dependencies = [
     "requests",
     "xarray",
     "zarr",
+    "h5netcdf",
     "matplotlib",
+    "ocf_datapipes>=3.3.34",
+    "ocf_ml_metrics>=0.0.11",
+    "huggingface-hub",
+    "gcsfs", # gcsfs is only needed when getting data from Google Cloud Storage
 ]
 
 [project.optional-dependencies]
 dev = [
     "pvlive-api",
     "black",
-    "flake8",
     "ruff",
     "pre-commit",
     "setuptools",
