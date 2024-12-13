@@ -4,13 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-data-pvnet"
+version = "0.1.0"  # Static version
 description = "An open-source project supporting solar forecasting with PVNet."
 license = { text = "MIT" }
 authors = [
     { name="Peter Dudfield", email="info@openclimatefix.org" }
 ]
-homepage = "https://github.com/openclimatefix/open-data-pvnet"
-repository = "https://github.com/openclimatefix/open-data-pvnet"
 keywords = ["solar forecasting", "open-source", "renewable energy", "machine learning"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -34,6 +33,8 @@ dependencies = [
     "ocf_datapipes>=3.3.34",
     "ocf_ml_metrics>=0.0.11",
     "huggingface-hub",
+    "pydantic==2.5.3",
+    "nowcasting-datamodel>=1.5.45",
 ]
 
 [project.optional-dependencies]
