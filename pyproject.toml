@@ -49,7 +49,9 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-mock",
-    "gcsfs", # gcsfs is only needed when getting data from Google Cloud Storage
+    "tomli",
+    "fsspec[http]==2024.6.0", # Match gcsfs version
+    "gcsfs==2024.6.0"         # Ensure compatibility
 ]
 
 [tool.black]
