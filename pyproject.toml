@@ -4,9 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-data-pvnet"
-version = "0.1.0"
 description = "An open-source project supporting solar forecasting with PVNet."
-readme = "README.md"
 license = { text = "MIT" }
 authors = [
     { name="Peter Dudfield", email="info@openclimatefix.org" }
@@ -33,11 +31,9 @@ dependencies = [
     "xarray",
     "zarr",
     "h5netcdf",
-    "matplotlib",
     "ocf_datapipes>=3.3.34",
     "ocf_ml_metrics>=0.0.11",
     "huggingface-hub",
-    "gcsfs", # gcsfs is only needed when getting data from Google Cloud Storage
 ]
 
 [project.optional-dependencies]
@@ -51,6 +47,8 @@ dev = [
     "twine",
     "pytest",
     "pytest-cov",
+    "pytest-mock",
+    "gcsfs", # gcsfs is only needed when getting data from Google Cloud Storage
 ]
 
 [tool.black]
@@ -65,3 +63,8 @@ target-version = "py39"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "open_data_pvnet.__version__"}
+readme = {file = "README.md", content-type = "text/markdown"}
+
