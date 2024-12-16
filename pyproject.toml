@@ -24,18 +24,17 @@ classifiers = [
 ]
 
 requires-python = ">=3.9"
+
 dependencies = [
     "numpy",
     "pandas",
     "requests",
     "xarray",
     "zarr",
-    "h5netcdf",
-    "ocf_datapipes>=3.3.34",
+    "ocf-data-sampler",
     "ocf_ml_metrics>=0.0.11",
     "huggingface-hub",
     "pydantic==2.5.3",
-    "nowcasting-datamodel>=1.5.45",
 ]
 
 [project.optional-dependencies]
@@ -51,8 +50,6 @@ dev = [
     "pytest-cov",
     "pytest-mock",
     "tomli",
-    "fsspec[http]==2024.6.0", # Match gcsfs version
-    "gcsfs==2024.6.0"         # Ensure compatibility
 ]
 
 [tool.black]
