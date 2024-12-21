@@ -45,6 +45,7 @@ Refer to the full [OCF Coding Style Guide](https://github.com/openclimatefix/.gi
 
 https://en.wikipedia.org/wiki/Numerical_weather_prediction
 
+[Working with NWP Data](working_with_nwp.md)
 ---
 
 ## Understanding Zarr Format
