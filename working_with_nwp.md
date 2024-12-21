@@ -1,6 +1,6 @@
 # Working with Numerical Weather Prediction (NWP) Data
 
-This guide provides detailed information about working with Numerical Weather Prediction (NWP) data in the context of solar forecasting.
+This guide provides detailed information about working with Numerical Weather Prediction (NWP) data in the context of solar forecasting, serving as a starting point for specific implementations found in the project's codebase and documentation.
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -11,6 +11,8 @@ This guide provides detailed information about working with Numerical Weather Pr
 6. [Working with NWP Data in Python](#working-with-nwp-data-in-python)
 7. [Best Practices](#best-practices)
 8. [Common Challenges](#common-challenges)
+9. [Additional Resources](#additional-resources)
+10. [Configuration Files](#configuration-files)
 
 ## Introduction
 
@@ -214,4 +216,14 @@ def subset_region(ds, lat_range, lon_range):
 
 ---
 
-This guide serves as a starting point for working with NWP data. For specific implementations or more detailed information, please refer to the project's codebase and documentation.
+## Configuration Files
+The `configs/` directory contains YAML configuration files for various NWP data sources. These files define the input variables, output paths, and processing parameters.
+
+- `met_office_data_config.yaml`: Configuration for Met Office NWP data.
+- `gfs_data_config.yaml`: Configuration for GFS NWP data (to be implemented).
+
+#### Modifying Configurations
+To customize the processing pipeline:
+1. Navigate to the `configs/` directory.
+2. Edit the YAML files using any text editor.
+3. Ensure paths and parameters match your local or cloud setup.
