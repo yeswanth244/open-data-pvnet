@@ -35,6 +35,9 @@ dependencies = [
     "ocf_ml_metrics>=0.0.11",
     "huggingface-hub",
     "pydantic==2.5.3",
+    "pyyaml",
+    "boto3",
+    "python-dotenv",
 ]
 
 [project.optional-dependencies]
@@ -52,6 +55,9 @@ dev = [
     "tomli",
 ]
 
+[project.scripts]
+open-data-pvnet = "open_data_pvnet.main:main"
+
 [tool.black]
 line-length = 100
 
@@ -68,4 +74,8 @@ where = ["src"]
 [tool.setuptools.dynamic]
 version = {attr = "open_data_pvnet.__version__"}
 readme = {file = "README.md", content-type = "text/markdown"}
+
+[tool.setuptools.package-data]
+"open_data_pvnet" = [".env.local"]
+
 
