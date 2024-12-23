@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import xarray as xr
+import zarr
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ def convert_nc_to_zarr(input_dir: Path, output_dir: Path, overwrite: bool = Fals
         output_dir.mkdir(parents=True, exist_ok=True)
         total_files = 0
         total_size_bytes = 0
+        compression_settings = {"compressor": zarr.Blosc(cname="zstd", clevel=5, shuffle=2)}
 
         nc_files = list(input_dir.glob("*.nc"))
         if not nc_files:
@@ -31,24 +33,28 @@ def convert_nc_to_zarr(input_dir: Path, output_dir: Path, overwrite: bool = Fals
         for nc_file in nc_files:
             logger.info(f"Processing file: {nc_file}")
             try:
-                # Derive Zarr file path
                 zarr_file = output_dir / f"{nc_file.stem}.zarr"
 
-                # Skip if Zarr file exists and overwrite is False
                 if zarr_file.exists() and not overwrite:
                     logger.info(f"Skipping {nc_file}, Zarr file already exists: {zarr_file}")
                     continue
 
-                # Open the NetCDF file as an xarray dataset
-                ds = xr.open_dataset(nc_file)
+                # Open and process the NetCDF file
+                with xr.open_dataset(nc_file) as ds:
+                    try:
+                        ds.to_zarr(
+                            zarr_file,
+                            mode="w",
+                            encoding={var: compression_settings for var in ds.data_vars},
+                        )
+                    except ValueError as e:
+                        logger.warning(f"Skipping compression for {nc_file}: {e}")
+                        ds.to_zarr(zarr_file, mode="w")
 
-                # Save as Zarr
-                ds.to_zarr(zarr_file, mode="w")
                 logger.info(f"Converted {nc_file} to {zarr_file}")
 
-                # Update metrics
                 total_files += 1
-                total_size_bytes += nc_file.stat().st_size
+                total_size_bytes += sum(f.stat().st_size for f in zarr_file.rglob("*"))
 
             except Exception as e:
                 logger.error(f"Error converting {nc_file} to Zarr: {e}")
@@ -57,7 +63,7 @@ def convert_nc_to_zarr(input_dir: Path, output_dir: Path, overwrite: bool = Fals
         logger.info(
             f"Completed conversion: {total_files} files, {total_size_bytes / (1024 ** 2):.2f} MB"
         )
-        return total_files, total_size_bytes / (1024**2)  # Return count and size in MB
+        return total_files, total_size_bytes / (1024**2)
 
     except Exception as e:
         logger.error(f"Error in conversion process: {e}")

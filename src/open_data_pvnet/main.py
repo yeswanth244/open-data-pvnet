@@ -46,6 +46,12 @@ def add_provider_parser(subparsers, provider_name):
     parser.add_argument("--month", type=int, required=True, help="Month of data")
     parser.add_argument("--day", type=int, required=True, help="Day of data")
     parser.add_argument("--hour", type=int, required=True, help="Hour of data")
+    parser.add_argument(
+        "--overwrite",
+        "-o",
+        action="store_true",
+        help="Overwrite existing files in output directories",
+    )
     if provider_name == "metoffice":
         parser.add_argument(
             "--region",
@@ -84,6 +90,11 @@ def main():
     Initializes the environment, sets up command-line argument parsing,
     and handles the execution of the requested command. If no command
     is provided, displays the help message.
+
+    For example:
+
+    open-data-pvnet metoffice archive --year 2022 --month 12 --day 1 --hour 0 --region uk -o
+
     """
     load_env_and_setup_logger()
     parser = configure_parser()
@@ -98,9 +109,19 @@ def main():
 
     # Dispatch based on the command
     if args.command == "metoffice":
-        handle_archive(args.command, args.year, args.month, args.day, args.hour, region=args.region)
+        handle_archive(
+            args.command,
+            args.year,
+            args.month,
+            args.day,
+            args.hour,
+            region=args.region,
+            overwrite=args.overwrite,
+        )
     elif args.command:
-        handle_archive(args.command, args.year, args.month, args.day, args.hour)
+        handle_archive(
+            args.command, args.year, args.month, args.day, args.hour, overwrite=args.overwrite
+        )
     else:
         parser.print_help()
 

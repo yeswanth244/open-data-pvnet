@@ -119,7 +119,9 @@ def fetch_met_office_data(year: int, month: int, day: int, hour: int, region: st
     return total_files, total_size_bytes
 
 
-def process_met_office_data(year: int, month: int, day: int, hour: int, region: str):
+def process_met_office_data(
+    year: int, month: int, day: int, hour: int, region: str, overwrite: bool = False
+):
     """
     Fetch and convert Met Office data to Zarr format.
 
@@ -129,6 +131,7 @@ def process_met_office_data(year: int, month: int, day: int, hour: int, region: 
         day (int): Day of data.
         hour (int): Hour of data.
         region (str): Region ('uk' or 'global').
+        overwrite (bool): Whether to overwrite existing files. Defaults to False.
     """
     # Load configuration
     config_path = CONFIG_PATHS[region]
@@ -159,7 +162,7 @@ def process_met_office_data(year: int, month: int, day: int, hour: int, region: 
     # Step 2: Convert downloaded files to Zarr
     logger.info("Starting conversion to Zarr format...")
     try:
-        converted_files, converted_size = convert_nc_to_zarr(raw_dir, zarr_dir)
+        converted_files, converted_size = convert_nc_to_zarr(raw_dir, zarr_dir, overwrite=overwrite)
         logger.info(f"Converted {converted_files} files to Zarr format ({converted_size:.2f} MB)")
     except Exception as e:
         logger.error(f"Error during Zarr conversion: {e}")

@@ -6,7 +6,7 @@ from open_data_pvnet.nwp.dwd import process_dwd_data
 logger = logging.getLogger(__name__)
 
 
-def handle_archive(provider, year, month, day, hour, region=None):
+def handle_archive(provider, year, month, day, hour, region=None, overwrite=False):
     """
     Handle archiving data based on the provider, year, month, day, hour, and region.
 
@@ -17,6 +17,7 @@ def handle_archive(provider, year, month, day, hour, region=None):
         day (int): The day of data to fetch.
         hour (int): The hour of data to fetch.
         region (str, optional): The region for Met Office data ('global' or 'uk'). Defaults to None.
+        overwrite (bool): Whether to overwrite existing files. Defaults to False.
     """
     if provider == "metoffice":
         if region not in ["global", "uk"]:
@@ -24,14 +25,18 @@ def handle_archive(provider, year, month, day, hour, region=None):
                 f"Invalid region '{region}' for provider 'metoffice'. Must be 'global' or 'uk'."
             )
         logger.info(
-            f"Processing Met Office {region} data for {year}-{month:02d}-{day:02d} at hour {hour:02d}"
+            f"Processing Met Office {region} data for {year}-{month:02d}-{day:02d} at hour {hour:02d} with overwrite={overwrite}"
         )
-        process_met_office_data(year, month, day, hour, region)
+        process_met_office_data(year, month, day, hour, region, overwrite=overwrite)
     elif provider == "gfs":
-        logger.info(f"Fetching GFS data for {year}-{month:02d}-{day:02d} at hour {hour:02d}")
-        process_gfs_data(year, month, day, hour)
+        logger.info(
+            f"Processing GFS data for {year}-{month:02d}-{day:02d} at hour {hour:02d} with overwrite={overwrite}"
+        )
+        process_gfs_data(year, month, day, hour, overwrite=overwrite)
     elif provider == "dwd":
-        logger.info(f"Fetching DWD data for {year}-{month:02d}-{day:02d} at hour {hour:02d}")
-        process_dwd_data(year, month, day, hour)
+        logger.info(
+            f"Processing DWD data for {year}-{month:02d}-{day:02d} at hour {hour:02d} with overwrite={overwrite}"
+        )
+        process_dwd_data(year, month, day, hour, overwrite=overwrite)
     else:
         raise ValueError(f"Unknown provider: {provider}")
