@@ -66,6 +66,7 @@ htmlcov/
 *.tmp
 *.temp
 *.~*
+/tmp/
 
 # Cloud-specific files
 *.aws/

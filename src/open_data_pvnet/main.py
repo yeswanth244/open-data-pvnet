@@ -6,6 +6,7 @@ from open_data_pvnet.utils.env_loader import load_environment_variables
 logger = logging.getLogger(__name__)
 
 PROVIDERS = ["metoffice", "gfs", "dwd"]
+DEFAULT_REGION = "global"  # Default region for Met Office datasets
 
 
 def load_env_and_setup_logger():
@@ -43,6 +44,15 @@ def add_provider_parser(subparsers, provider_name):
     parser.add_argument("operation", choices=["archive"], help="Operation to perform")
     parser.add_argument("--year", type=int, required=True, help="Year of data")
     parser.add_argument("--month", type=int, required=True, help="Month of data")
+    parser.add_argument("--day", type=int, required=True, help="Day of data")
+    parser.add_argument("--hour", type=int, required=True, help="Hour of data")
+    if provider_name == "metoffice":
+        parser.add_argument(
+            "--region",
+            choices=["global", "uk"],
+            default=DEFAULT_REGION,
+            help="Specify the Met Office dataset region (default: global)",
+        )
 
 
 def configure_parser():
@@ -50,7 +60,7 @@ def configure_parser():
 
     Creates the main parser and adds subparsers for each supported data provider
     (metoffice, gfs, dwd). Each provider subparser includes options for year,
-    month, and operation type.
+    month, day, hour, and operation type.
 
     Returns:
         argparse.ArgumentParser: The configured argument parser
@@ -87,8 +97,10 @@ def main():
         return
 
     # Dispatch based on the command
-    if args.command:
-        handle_archive(args.command, args.year, args.month)
+    if args.command == "metoffice":
+        handle_archive(args.command, args.year, args.month, args.day, args.hour, region=args.region)
+    elif args.command:
+        handle_archive(args.command, args.year, args.month, args.day, args.hour)
     else:
         parser.print_help()
 

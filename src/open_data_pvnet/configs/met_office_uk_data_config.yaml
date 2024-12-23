@@ -1,6 +1,6 @@
 general:
-  description: Config for training the saved PVNet model using Met Office data
-  name: PVNet current (Met Office)
+  description: Config for accessing Met Office UK Deterministic NWP data
+  name: PVNet current (Met Office UK)
 
 input_data:
   default_forecast_minutes: 480
@@ -20,6 +20,9 @@ input_data:
       forecast_minutes: 480.0
       history_minutes: 120
       max_staleness_minutes: null
+      s3_bucket: "met-office-atmospheric-model-data"
+      s3_prefix: "uk-deterministic-2km"
+      local_output_dir: "tmp/met_office/uk"
       nwp_accum_channels:
       - radiation_flux_in_shortwave_total_downward_at_surface # Downward shortwave radiation flux at the surface (W/m²)
       - radiation_flux_in_longwave_downward_at_surface        # Downward longwave radiation flux at the surface (W/m²)
