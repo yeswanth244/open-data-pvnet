@@ -1,6 +1,8 @@
 general:
   description: Config for training the saved PVNet model using Met Office data
   name: PVNet current (Met Office)
+  destination_platform: "huggingface"
+  destination_dataset_id: null # TODO: Add destination dataset id
 
 input_data:
   default_forecast_minutes: 480

@@ -1,9 +1,11 @@
 import logging
 from pathlib import Path
+import shutil
 
 from open_data_pvnet.utils.env_loader import PROJECT_BASE
 from open_data_pvnet.utils.config_loader import load_config
 from open_data_pvnet.utils.data_converters import convert_nc_to_zarr
+from open_data_pvnet.utils.data_uploader import upload_to_huggingface
 
 import boto3
 
@@ -119,11 +121,60 @@ def fetch_met_office_data(year: int, month: int, day: int, hour: int, region: st
     return total_files, total_size_bytes
 
 
+def _handle_existing_zarr_directory(
+    zarr_dir, config_path, year, month, day, hour, raw_dir, overwrite
+):
+    """Handle the case where Zarr directory already exists."""
+    logger.info(f"Zarr directory exists: {zarr_dir}. Skipping data fetch and conversion.")
+    logger.info("Attempting to upload existing Zarr data to Hugging Face...")
+
+    config = load_config(config_path)
+    destination_dataset_id = config["general"].get("destination_dataset_id")
+
+    if destination_dataset_id:
+        try:
+            folder_name = f"{year}-{month:02d}-{day:02d}-{hour:02d}"
+            upload_to_huggingface(
+                config_path=config_path, folder_name=folder_name, overwrite=overwrite
+            )
+            logger.info(f"Upload to Hugging Face completed for {destination_dataset_id}.")
+            _cleanup_directories(raw_dir, zarr_dir)
+        except Exception as e:
+            logger.error(f"Error during Hugging Face upload: {e}")
+
+
+def _cleanup_directories(raw_dir, zarr_dir):
+    """Clean up temporary directories."""
+    shutil.rmtree(raw_dir, ignore_errors=True)
+    shutil.rmtree(zarr_dir, ignore_errors=True)
+    logger.info(f"Temporary directories deleted: {raw_dir} and {zarr_dir}")
+
+
+def _upload_to_hf(config_path, year, month, day, hour, raw_dir, zarr_dir, overwrite):
+    """Handle uploading data to Hugging Face."""
+    config = load_config(config_path)
+    destination_dataset_id = config["general"].get("destination_dataset_id")
+
+    if destination_dataset_id:
+        logger.info(f"Starting upload to Hugging Face repository: {destination_dataset_id}")
+        try:
+            folder_name = f"{year}-{month:02d}-{day:02d}-{hour:02d}"
+            upload_to_huggingface(
+                config_path=config_path, folder_name=folder_name, overwrite=overwrite
+            )
+            logger.info(f"Upload to Hugging Face completed for {destination_dataset_id}.")
+            _cleanup_directories(raw_dir, zarr_dir)
+        except Exception as e:
+            logger.error(f"Error during Hugging Face upload: {e}")
+    else:
+        logger.warning("Destination dataset ID not provided. Skipping upload step.")
+
+
 def process_met_office_data(
     year: int, month: int, day: int, hour: int, region: str, overwrite: bool = False
 ):
     """
-    Fetch and convert Met Office data to Zarr format.
+    Fetch, convert, and upload Met Office data to Zarr format.
 
     Args:
         year (int): Year of data.
@@ -133,7 +184,6 @@ def process_met_office_data(
         region (str): Region ('uk' or 'global').
         overwrite (bool): Whether to overwrite existing files. Defaults to False.
     """
-    # Load configuration
     config_path = CONFIG_PATHS[region]
     config = load_config(config_path)
     local_output_dir = config["input_data"]["nwp"]["met_office"]["local_output_dir"]
@@ -145,9 +195,15 @@ def process_met_office_data(
     zarr_dir = (
         Path(PROJECT_BASE) / local_output_dir / "zarr" / f"{year}-{month:02d}-{day:02d}-{hour:02d}"
     )
-    zarr_dir.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Fetch data
+    # Check if Zarr directory exists
+    if zarr_dir.exists() and any(zarr_dir.iterdir()):
+        _handle_existing_zarr_directory(
+            zarr_dir, config_path, year, month, day, hour, raw_dir, overwrite
+        )
+        return
+
+    # Fetch data
     logger.info(f"Starting data fetch for {region} region...")
     try:
         total_files, total_size = fetch_met_office_data(year, month, day, hour, region)
@@ -159,14 +215,20 @@ def process_met_office_data(
         logger.error(f"Error during data fetch: {e}")
         return
 
-    # Step 2: Convert downloaded files to Zarr
+    # Convert to Zarr
     logger.info("Starting conversion to Zarr format...")
     try:
         converted_files, converted_size = convert_nc_to_zarr(raw_dir, zarr_dir, overwrite=overwrite)
+        if converted_files == 0:
+            logger.warning(f"No files were converted in directory: {raw_dir}")
+            return
         logger.info(f"Converted {converted_files} files to Zarr format ({converted_size:.2f} MB)")
     except Exception as e:
         logger.error(f"Error during Zarr conversion: {e}")
         return
+
+    # Upload to Hugging Face
+    _upload_to_hf(config_path, year, month, day, hour, raw_dir, zarr_dir, overwrite)
 
     logger.info(
         f"Process completed for {region} data at {year}-{month:02d}-{day:02d} {hour:02d}:00"
