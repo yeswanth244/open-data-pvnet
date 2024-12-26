@@ -29,15 +29,7 @@ def load_env_and_setup_logger():
 
 
 def add_provider_parser(subparsers, provider_name):
-    """Add a subparser for a specific data provider.
-
-    Args:
-        subparsers (argparse._SubParsersAction): The subparser container to add to
-        provider_name (str): Name of the data provider (e.g., 'metoffice', 'gfs', 'dwd')
-
-    Returns:
-        argparse.ArgumentParser: The configured subparser for this provider
-    """
+    """Add a subparser for a specific data provider."""
     parser = subparsers.add_parser(
         provider_name, help=f"Commands for {provider_name.capitalize()} data"
     )
@@ -45,20 +37,24 @@ def add_provider_parser(subparsers, provider_name):
     parser.add_argument("--year", type=int, required=True, help="Year of data")
     parser.add_argument("--month", type=int, required=True, help="Month of data")
     parser.add_argument("--day", type=int, required=True, help="Day of data")
-    parser.add_argument("--hour", type=int, required=True, help="Hour of data")
-    parser.add_argument(
-        "--overwrite",
-        "-o",
-        action="store_true",
-        help="Overwrite existing files in output directories",
-    )
     if provider_name == "metoffice":
+        parser.add_argument(
+            "--hour",
+            type=int,
+            help="Hour of data (0-23). If not specified, process all hours of the day.",
+        )
         parser.add_argument(
             "--region",
             choices=["global", "uk"],
             default=DEFAULT_REGION,
             help="Specify the Met Office dataset region (default: global)",
         )
+    parser.add_argument(
+        "--overwrite",
+        "-o",
+        action="store_true",
+        help="Overwrite existing files in output directories",
+    )
 
 
 def configure_parser():
@@ -85,17 +81,7 @@ def configure_parser():
 
 
 def main():
-    """Entry point for the Open Data PVNet CLI tool.
-
-    Initializes the environment, sets up command-line argument parsing,
-    and handles the execution of the requested command. If no command
-    is provided, displays the help message.
-
-    For example:
-
-    open-data-pvnet metoffice archive --year 2022 --month 12 --day 1 --hour 0 --region uk -o
-
-    """
+    """Entry point for the Open Data PVNet CLI tool."""
     load_env_and_setup_logger()
     parser = configure_parser()
     args = parser.parse_args()
@@ -110,21 +96,22 @@ def main():
     # Dispatch based on the command
     if args.command == "metoffice":
         handle_archive(
-            args.command,
-            args.year,
-            args.month,
-            args.day,
-            args.hour,
+            provider=args.command,
+            year=args.year,
+            month=args.month,
+            day=args.day,
+            hour=args.hour,  # Optional, default to None
             region=args.region,
             overwrite=args.overwrite,
         )
     elif args.command:
         handle_archive(
-            args.command, args.year, args.month, args.day, args.hour, overwrite=args.overwrite
+            provider=args.command,
+            year=args.year,
+            month=args.month,
+            day=args.day,
+            hour=args.hour,  # Optional, default to None
+            overwrite=args.overwrite,
         )
     else:
         parser.print_help()
-
-
-if __name__ == "__main__":
-    main()
