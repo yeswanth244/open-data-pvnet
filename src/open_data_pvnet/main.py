@@ -42,6 +42,7 @@ def add_provider_parser(subparsers, provider_name):
             "--hour",
             type=int,
             help="Hour of data (0-23). If not specified, process all hours of the day.",
+            default=None,
         )
         parser.add_argument(
             "--region",
@@ -110,7 +111,7 @@ def main():
             year=args.year,
             month=args.month,
             day=args.day,
-            hour=args.hour,  # Optional, default to None
+            hour=None,  # Set to None for non-metoffice providers, optional for metoffice
             overwrite=args.overwrite,
         )
     else:
