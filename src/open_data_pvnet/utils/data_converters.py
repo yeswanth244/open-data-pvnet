@@ -18,7 +18,14 @@ def convert_nc_to_zarr(input_dir: Path, output_dir: Path, overwrite: bool = Fals
 
     Returns:
         tuple: (int, float) - Number of files converted and total size in MB.
+
+    Raises:
+        FileNotFoundError: If input_dir does not exist.
     """
+    if not input_dir.exists():
+        logger.error(f"Input directory does not exist: {input_dir}")
+        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
         total_files = 0
