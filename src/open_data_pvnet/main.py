@@ -82,7 +82,11 @@ def configure_parser():
 
 
 def main():
-    """Entry point for the Open Data PVNet CLI tool."""
+    """Entry point for the Open Data PVNet CLI tool.
+
+    For example: open-data-pvnet metoffice archive --year 2022 --month 12 --day 1 --region uk -o
+
+    """
     load_env_and_setup_logger()
     parser = configure_parser()
     args = parser.parse_args()
