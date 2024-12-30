@@ -38,6 +38,9 @@ dependencies = [
     "pyyaml",
     "boto3",
     "python-dotenv",
+    "netcdf4",
+    "h5netcdf",
+    "h5py",
 ]
 
 [project.optional-dependencies]
