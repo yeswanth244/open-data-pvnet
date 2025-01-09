@@ -41,6 +41,7 @@ dependencies = [
     "netcdf4",
     "h5netcdf",
     "h5py",
+    "pvlive-api",
 ]
 
 [project.optional-dependencies]
