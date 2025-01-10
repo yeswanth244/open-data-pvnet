@@ -37,7 +37,7 @@ class PVLiveData:
         Get data at a specific time
         """
         try:
-            df = self.pvl.at_time(dt, entity_type="pes", entity_id=0, extra_fields="", period=30, dataframe=True)
+            df = self.pvl.at_time(dt, entity_type="gsp", entity_id=0, extra_fields="", period=30, dataframe=True)
             return df
         except Exception as e:
             logger.error(e)
