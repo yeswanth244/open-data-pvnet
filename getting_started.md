@@ -144,6 +144,32 @@ APIs play a crucial role in fetching real-time and historical data required for 
    - **NASA’s POWER API**: Offers meteorological and solar datasets tailored for renewable energy applications, including European regions. [Learn more](https://power.larc.nasa.gov/).
    - **EUMETSAT**: Europe’s satellite-based service providing weather and climate data, including cloud cover and solar radiation products. [Learn more](https://www.eumetsat.int/).
 
+4. **AWS S3 Access**
+   You will need access to the AWS S3 bucket containing the NWP data. Ensure you have the required permissions to list and download objects from the bucket.
+
+   1. **Install the AWS CLI**
+      ```bash
+      # Using pip
+      pip install awscli
+      ```
+
+      - Alternatively, install the AWS CLI via your system's package manager or [AWS CLI Installer](https://aws.amazon.com/cli/).
+
+    2. **Configure AWS Credentials**
+      Run the following command and follow the prompts:
+
+      ```bash
+      aws configure
+      # - AWS Access Key ID
+      # - AWS Secret Access Key
+      # - Default region (e.g., eu-west-1)
+      # - Default output format (json recommended)
+      ```
+    3. **Access the NWP Data**
+      - Use the `aws s3 ls` command to list the available objects in the bucket.
+      - Example: `aws s3 ls --no-sign-request s3://ocf-open-data-pvnet/data/`
+      - Use the `aws s3 cp` command to download the data to your local machine.
+
 
 ### Best Practices for Using APIs
 
