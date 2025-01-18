@@ -99,7 +99,13 @@ def fetch_met_office_data(year: int, month: int, day: int, hour: int, region: st
 
 
 def process_met_office_data(
-    year: int, month: int, day: int, hour: int, region: str, overwrite: bool = False
+    year: int,
+    month: int,
+    day: int,
+    hour: int,
+    region: str,
+    overwrite: bool = False,
+    archive_type: str = "zarr.zip",
 ):
     """
     Fetch, convert, and upload Met Office data.
@@ -111,6 +117,7 @@ def process_met_office_data(
         hour (int): Hour of data.
         region (str): Region ('uk' or 'global').
         overwrite (bool): Whether to overwrite existing files. Defaults to False.
+        archive_type (str): Type of archive to create ("zarr.zip" or "tar").
     """
     config_path = CONFIG_PATHS[region]
     config = load_config(config_path)
@@ -139,7 +146,7 @@ def process_met_office_data(
 
     # Step 3: Upload Zarr directory
     try:
-        upload_to_huggingface(config_path, zarr_dir.name, year, month, day, overwrite)
+        upload_to_huggingface(config_path, zarr_dir.name, year, month, day, overwrite, archive_type)
         logger.info("Upload to Hugging Face completed.")
         shutil.rmtree(raw_dir)
         shutil.rmtree(zarr_dir)

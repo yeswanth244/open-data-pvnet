@@ -192,7 +192,13 @@ def create_zarr_zip(folder_path: Path, archive_name: str, overwrite: bool = Fals
 
 
 def upload_to_huggingface(
-    config_path: Path, folder_name: str, year: int, month: int, day: int, overwrite: bool = False
+    config_path: Path,
+    folder_name: str,
+    year: int,
+    month: int,
+    day: int,
+    overwrite: bool = False,
+    archive_type: str = "zarr.zip",
 ):
     """
     Upload a specific folder from the local Zarr directory to a Hugging Face dataset repository.
@@ -204,6 +210,7 @@ def upload_to_huggingface(
         month (int): Month for folder structure.
         day (int): Day for folder structure.
         overwrite (bool): Whether to overwrite existing files in the repository.
+        archive_type (str): Type of archive to create ("zarr.zip" or "tar").
 
     Raises:
         Exception: If the upload fails due to authentication, network, or other issues.
@@ -222,9 +229,13 @@ def upload_to_huggingface(
         if not folder_path.exists():
             raise FileNotFoundError(f"Local folder does not exist: {folder_path}")
 
-        # Create archive using Zarr zip
-        archive_name = f"{folder_name}.zarr.zip"
-        archive_path = create_zarr_zip(folder_path, archive_name, overwrite=overwrite)
+        # Create archive based on type
+        if archive_type == "zarr.zip":
+            archive_name = f"{folder_name}.zarr.zip"
+            archive_path = create_zarr_zip(folder_path, archive_name, overwrite=overwrite)
+        else:  # tar
+            archive_name = f"{folder_name}.tar.gz"
+            archive_path = create_tar_archive(folder_path, archive_name, overwrite=overwrite)
 
         # Upload archive with year/month/day structure
         _upload_archive(hf_api, archive_path, repo_id, hf_token, overwrite, year, month, day)

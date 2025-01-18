@@ -32,6 +32,8 @@ def test_configure_parser():
             "12",
             "--region",
             "global",
+            "--archive-type",
+            "zarr.zip",
         ]
     )
     assert args.command == "metoffice"
@@ -41,14 +43,31 @@ def test_configure_parser():
     assert args.day == 1
     assert args.hour == 12
     assert args.region == "global"
+    assert args.archive_type == "zarr.zip"
+    assert not args.overwrite  # Default should be False
 
-    # Test gfs command
-    args = parser.parse_args(["gfs", "archive", "--year", "2024", "--month", "3", "--day", "1"])
+    # Test gfs command with tar archive type
+    args = parser.parse_args(
+        [
+            "gfs",
+            "archive",
+            "--year",
+            "2024",
+            "--month",
+            "3",
+            "--day",
+            "1",
+            "--archive-type",
+            "tar",
+        ]
+    )
     assert args.command == "gfs"
     assert args.operation == "archive"
     assert args.year == 2024
     assert args.month == 3
     assert args.day == 1
+    assert args.archive_type == "tar"
+    assert not args.overwrite
 
 
 @patch("open_data_pvnet.main.load_environment_variables")
@@ -83,6 +102,8 @@ def test_main_metoffice(mock_load_env, mock_handle_archive):
         "12",
         "--region",
         "global",
+        "--archive-type",
+        "zarr.zip",
     ]
     with patch("sys.argv", ["script"] + test_args):
         main()
@@ -94,18 +115,36 @@ def test_main_metoffice(mock_load_env, mock_handle_archive):
             hour=12,
             region="global",
             overwrite=False,
+            archive_type="zarr.zip",
         )
 
 
 @patch("open_data_pvnet.main.handle_archive")
 @patch("open_data_pvnet.main.load_env_and_setup_logger")
 def test_main_gfs(mock_load_env, mock_handle_archive):
-    # Test gfs command
-    test_args = ["gfs", "archive", "--year", "2024", "--month", "3", "--day", "1"]
+    # Test gfs command with tar archive
+    test_args = [
+        "gfs",
+        "archive",
+        "--year",
+        "2024",
+        "--month",
+        "3",
+        "--day",
+        "1",
+        "--archive-type",
+        "tar",
+    ]
     with patch("sys.argv", ["script"] + test_args):
         main()
         mock_handle_archive.assert_called_once_with(
-            provider="gfs", year=2024, month=3, day=1, hour=None, overwrite=False
+            provider="gfs",
+            year=2024,
+            month=3,
+            day=1,
+            hour=None,
+            overwrite=False,
+            archive_type="tar",
         )
 
 

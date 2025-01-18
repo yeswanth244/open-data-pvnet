@@ -59,6 +59,6 @@ def test_get_data_at_time(pvlive_mock):
 
     result = pvlive_mock.get_data_at_time(dt)
     pvlive_mock.pvl.at_time.assert_called_once_with(
-        dt, entity_type="pes", entity_id=0, extra_fields="", period=30, dataframe=True
+        dt, entity_type="gsp", entity_id=0, extra_fields="", period=30, dataframe=True
     )
     assert result == mock_data
