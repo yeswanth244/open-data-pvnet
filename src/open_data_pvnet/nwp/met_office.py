@@ -139,7 +139,7 @@ def process_met_office_data(
 
     # Step 3: Upload Zarr directory
     try:
-        upload_to_huggingface(config_path, zarr_dir.name, overwrite)
+        upload_to_huggingface(config_path, zarr_dir.name, year, month, day, overwrite)
         logger.info("Upload to Hugging Face completed.")
         shutil.rmtree(raw_dir)
         shutil.rmtree(zarr_dir)
