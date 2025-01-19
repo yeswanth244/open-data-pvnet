@@ -525,6 +525,12 @@ Use `pytest` to ensure the project works as expected:
 1. Run all tests:
    ```bash
    pytest
+   ```
+
+2. Run specific tests:
+   ```bash
+   pytest tests/test_main.py
+   ```
 
 ---
 

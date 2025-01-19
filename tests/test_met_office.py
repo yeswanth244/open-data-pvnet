@@ -48,13 +48,53 @@ def test_process_met_office_data_success(mocker, mock_config, tmp_path):
     mock_upload = mocker.patch("open_data_pvnet.nwp.met_office.upload_to_huggingface")
     mock_rmtree = mocker.patch("open_data_pvnet.nwp.met_office.shutil.rmtree")
 
-    # Call function
-    process_met_office_data(2023, 12, 25, 0, "uk")
+    # Call function with default archive_type
+    process_met_office_data(2023, 12, 25, 0, "uk", overwrite=False)
 
     # Assertions
     mock_fetch.assert_called_once_with(2023, 12, 25, 0, "uk")
     mock_convert.assert_called_once()
-    mock_upload.assert_called_once()
+    mock_upload.assert_called_once_with(
+        mocker.ANY,  # config_path
+        mocker.ANY,  # folder_name
+        2023,  # year
+        12,  # month
+        25,  # day
+        False,  # overwrite
+        "zarr.zip",  # default archive_type
+    )
+    assert mock_rmtree.call_count == 2
+
+
+def test_process_met_office_data_with_tar(mocker, mock_config, tmp_path):
+    # Setup mocks
+    mocker.patch("open_data_pvnet.nwp.met_office.PROJECT_BASE", str(tmp_path))
+    mocker.patch("open_data_pvnet.nwp.met_office.CONFIG_PATHS", {"uk": "test_config.yaml"})
+    mocker.patch("open_data_pvnet.nwp.met_office.load_config", return_value=mock_config)
+    mock_fetch = mocker.patch(
+        "open_data_pvnet.nwp.met_office.fetch_met_office_data", return_value=3
+    )
+    mock_convert = mocker.patch(
+        "open_data_pvnet.nwp.met_office.convert_nc_to_zarr", return_value=(3, 1000)
+    )
+    mock_upload = mocker.patch("open_data_pvnet.nwp.met_office.upload_to_huggingface")
+    mock_rmtree = mocker.patch("open_data_pvnet.nwp.met_office.shutil.rmtree")
+
+    # Call function with tar archive_type
+    process_met_office_data(2023, 12, 25, 0, "uk", overwrite=True, archive_type="tar")
+
+    # Assertions
+    mock_fetch.assert_called_once_with(2023, 12, 25, 0, "uk")
+    mock_convert.assert_called_once()
+    mock_upload.assert_called_once_with(
+        mocker.ANY,  # config_path
+        mocker.ANY,  # folder_name
+        2023,  # year
+        12,  # month
+        25,  # day
+        True,  # overwrite
+        "tar",  # specified archive_type
+    )
     assert mock_rmtree.call_count == 2
 
 

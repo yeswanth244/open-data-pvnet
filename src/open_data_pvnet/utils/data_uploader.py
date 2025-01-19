@@ -4,6 +4,8 @@ import tarfile
 from pathlib import Path
 from huggingface_hub import HfApi
 from open_data_pvnet.utils.config_loader import load_config
+import zarr
+from zarr.storage import ZipStore
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +82,18 @@ def create_tar_archive(folder_path: Path, archive_name: str, overwrite: bool = F
     return archive_path
 
 
-def _upload_archive(hf_api, archive_path: Path, repo_id: str, hf_token: str, overwrite: bool):
+def _upload_archive(
+    hf_api,
+    archive_path: Path,
+    repo_id: str,
+    hf_token: str,
+    overwrite: bool,
+    year: int,
+    month: int,
+    day: int,
+):
     """
-    Upload an archive file to the Hugging Face repository.
+    Upload an archive file to the Hugging Face repository in the data/year/month/day structure.
 
     Args:
         hf_api (HfApi): The Hugging Face API instance.
@@ -90,8 +101,12 @@ def _upload_archive(hf_api, archive_path: Path, repo_id: str, hf_token: str, ove
         repo_id (str): Repository ID.
         hf_token (str): Hugging Face authentication token.
         overwrite (bool): Whether to overwrite existing files.
+        year (int): Year for folder structure.
+        month (int): Month for folder structure.
+        day (int): Day for folder structure.
     """
-    target_path = archive_path.name  # Use the same archive name in the repo
+    # Create the path structure: data/year/month/day/archive_name
+    target_path = f"data/{year:04d}/{month:02d}/{day:02d}/{archive_path.name}"
     logger.info(f"Uploading archive {archive_path} to {repo_id}:{target_path}")
 
     try:
@@ -103,7 +118,6 @@ def _upload_archive(hf_api, archive_path: Path, repo_id: str, hf_token: str, ove
                 )
                 logger.info(f"Deleted existing file {target_path} from repository")
             except Exception as e:
-                # Ignore if file doesn't exist
                 logger.debug(
                     f"File {target_path} not found in repository or couldn't be deleted: {e}"
                 )
@@ -116,19 +130,87 @@ def _upload_archive(hf_api, archive_path: Path, repo_id: str, hf_token: str, ove
             repo_type="dataset",
             token=hf_token,
         )
-        logger.info(f"Upload completed for {archive_path} to {repo_id}")
+        logger.info(f"Upload completed for {archive_path} to {repo_id}:{target_path}")
     except Exception as e:
         raise RuntimeError(f"Failed to upload archive: {e}")
 
 
-def upload_to_huggingface(config_path: Path, folder_name: str, overwrite: bool = False):
+def create_zarr_zip(folder_path: Path, archive_name: str, overwrite: bool = False) -> Path:
+    """
+    Create a zip archive of a Zarr directory using zarr.zip functionality.
+
+    Args:
+        folder_path (Path): The Zarr folder to archive.
+        archive_name (str): Name of the archive file (should end with .zip).
+        overwrite (bool): Whether to overwrite the existing archive.
+
+    Returns:
+        Path: The path to the created archive.
+
+    Raises:
+        RuntimeError: If archive creation fails.
+        ValueError: If the input folder is not a valid Zarr directory.
+    """
+    if not archive_name.endswith(".zip"):
+        archive_name = f"{archive_name}.zip"
+
+    archive_path = folder_path.parent / archive_name
+
+    # Check if archive already exists
+    if archive_path.exists() and not overwrite:
+        logger.info(f"Archive already exists: {archive_path}. Skipping creation.")
+        return archive_path
+
+    if archive_path.exists() and overwrite:
+        logger.info(f"Overwriting existing archive: {archive_path}")
+        archive_path.unlink()  # Delete the existing archive
+
+    try:
+        # Try to open the Zarr directory to verify it's valid
+        try:
+            zarr.open(str(folder_path))
+        except Exception as e:
+            raise ValueError(f"Not a valid Zarr directory: {folder_path}. Error: {e}")
+
+        # Create zip archive
+        logger.info(f"Creating Zarr zip archive: {archive_path}")
+
+        # Open original Zarr directory
+        source_store = zarr.DirectoryStore(str(folder_path))
+
+        # Create new zip store and copy data
+        with ZipStore(str(archive_path), mode="w") as zip_store:
+            zarr.copy_store(source_store, zip_store)
+
+        logger.info(f"Created Zarr zip archive: {archive_path}")
+        return archive_path
+
+    except Exception as e:
+        if archive_path.exists():
+            archive_path.unlink()  # Clean up partial archive on failure
+        raise RuntimeError(f"Failed to create Zarr zip archive: {e}")
+
+
+def upload_to_huggingface(
+    config_path: Path,
+    folder_name: str,
+    year: int,
+    month: int,
+    day: int,
+    overwrite: bool = False,
+    archive_type: str = "zarr.zip",
+):
     """
     Upload a specific folder from the local Zarr directory to a Hugging Face dataset repository.
 
     Args:
         config_path (Path): Path to the configuration YAML file.
         folder_name (str): Name of the folder to upload (e.g., '2022-12-01-00').
+        year (int): Year for folder structure.
+        month (int): Month for folder structure.
+        day (int): Day for folder structure.
         overwrite (bool): Whether to overwrite existing files in the repository.
+        archive_type (str): Type of archive to create ("zarr.zip" or "tar").
 
     Raises:
         Exception: If the upload fails due to authentication, network, or other issues.
@@ -147,18 +229,22 @@ def upload_to_huggingface(config_path: Path, folder_name: str, overwrite: bool =
         if not folder_path.exists():
             raise FileNotFoundError(f"Local folder does not exist: {folder_path}")
 
-        # Create archive
-        archive_name = f"{folder_name}.tar.gz"
-        archive_path = create_tar_archive(folder_path, archive_name, overwrite=overwrite)
+        # Create archive based on type
+        if archive_type == "zarr.zip":
+            archive_name = f"{folder_name}.zarr.zip"
+            archive_path = create_zarr_zip(folder_path, archive_name, overwrite=overwrite)
+        else:  # tar
+            archive_name = f"{folder_name}.tar.gz"
+            archive_path = create_tar_archive(folder_path, archive_name, overwrite=overwrite)
 
-        # Upload archive
-        _upload_archive(hf_api, archive_path, repo_id, hf_token, overwrite)
+        # Upload archive with year/month/day structure
+        _upload_archive(hf_api, archive_path, repo_id, hf_token, overwrite, year, month, day)
 
         logger.info(f"Upload to Hugging Face completed: {repo_id}")
 
         # Remove the archive after successful upload
         logger.info(f"Removing local archive: {archive_path}")
-        archive_path.unlink()  # Deletes the tar archive file
+        archive_path.unlink()
 
     except Exception as e:
         logger.error(f"Error uploading to Hugging Face: {e}")

@@ -2,7 +2,7 @@ general:
   description: Config for accessing Met Office UK Deterministic NWP data
   name: PVNet current (Met Office UK)
   destination_platform: "huggingface"
-  destination_dataset_id: "jcamier/met-office-uk-deterministic-zarr"
+  destination_dataset_id: "openclimatefix/met-office-uk-deterministic-solar"
 
 input_data:
   default_forecast_minutes: 480

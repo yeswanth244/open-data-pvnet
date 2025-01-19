@@ -37,6 +37,12 @@ def add_provider_parser(subparsers, provider_name):
     parser.add_argument("--year", type=int, required=True, help="Year of data")
     parser.add_argument("--month", type=int, required=True, help="Month of data")
     parser.add_argument("--day", type=int, required=True, help="Day of data")
+    parser.add_argument(
+        "--archive-type",
+        choices=["zarr.zip", "tar"],
+        default="zarr.zip",
+        help="Type of archive to create (default: zarr.zip)",
+    )
     if provider_name == "metoffice":
         parser.add_argument(
             "--hour",
@@ -84,8 +90,10 @@ def configure_parser():
 def main():
     """Entry point for the Open Data PVNet CLI tool.
 
-    For example: open-data-pvnet metoffice archive --year 2022 --month 12 --day 1 --region uk -o
+    For example:
 
+    open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --region uk -o
+    open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --hour 12 --region uk -o --archive-type tar
     """
     load_env_and_setup_logger()
     parser = configure_parser()
@@ -105,9 +113,10 @@ def main():
             year=args.year,
             month=args.month,
             day=args.day,
-            hour=args.hour,  # Optional, default to None
+            hour=args.hour,
             region=args.region,
             overwrite=args.overwrite,
+            archive_type=args.archive_type,
         )
     elif args.command:
         handle_archive(
@@ -117,6 +126,7 @@ def main():
             day=args.day,
             hour=None,  # Set to None for non-metoffice providers, optional for metoffice
             overwrite=args.overwrite,
+            archive_type=args.archive_type,
         )
     else:
         parser.print_help()

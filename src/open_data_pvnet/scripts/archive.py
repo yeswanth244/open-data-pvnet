@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 from open_data_pvnet.nwp.met_office import process_met_office_data
 from open_data_pvnet.nwp.gfs import process_gfs_data
 from open_data_pvnet.nwp.dwd import process_dwd_data
@@ -6,18 +7,28 @@ from open_data_pvnet.nwp.dwd import process_dwd_data
 logger = logging.getLogger(__name__)
 
 
-def handle_archive(provider, year, month, day, hour=None, region=None, overwrite=False):
+def handle_archive(
+    provider: str,
+    year: int,
+    month: int,
+    day: int,
+    hour: Optional[int] = None,
+    region: str = "global",
+    overwrite: bool = False,
+    archive_type: str = "zarr.zip",
+):
     """
-    Handle archiving data based on the provider, year, month, day, hour, and region.
+    Handle the archive operation for different providers.
 
     Args:
         provider (str): The data provider (e.g., 'metoffice', 'gfs', 'dwd').
-        year (int): The year of data to fetch.
-        month (int): The month of data to fetch.
-        day (int): The day of data to fetch.
-        hour (int, optional): The hour of data to fetch. If None, iterate through all hours.
-        region (str, optional): The region for Met Office data ('global' or 'uk'). Defaults to None.
-        overwrite (bool): Whether to overwrite existing files. Defaults to False.
+        year (int): Year of data.
+        month (int): Month of data.
+        day (int): Day of data.
+        hour (Optional[int]): Hour of data (0-23), only used for Met Office data.
+        region (str): Region for Met Office data ('global' or 'uk').
+        overwrite (bool): Whether to overwrite existing files.
+        archive_type (str): Type of archive to create ("zarr.zip" or "tar").
     """
     if provider == "metoffice":
         if region not in ["global", "uk"]:
@@ -30,7 +41,15 @@ def handle_archive(provider, year, month, day, hour=None, region=None, overwrite
             logger.info(
                 f"Processing Met Office {region} data for {year}-{month:02d}-{day:02d} at hour {hour:02d} with overwrite={overwrite}"
             )
-            process_met_office_data(year, month, day, hour, region, overwrite=overwrite)
+            process_met_office_data(
+                year=year,
+                month=month,
+                day=day,
+                hour=hour,
+                region=region,
+                overwrite=overwrite,
+                archive_type=archive_type,
+            )
 
     elif provider == "gfs":
         logger.info(
@@ -43,4 +62,4 @@ def handle_archive(provider, year, month, day, hour=None, region=None, overwrite
         )
         process_dwd_data(year, month, day, hour, overwrite=overwrite)
     else:
-        raise ValueError(f"Unknown provider: {provider}")
+        raise NotImplementedError(f"Provider {provider} not yet implemented")

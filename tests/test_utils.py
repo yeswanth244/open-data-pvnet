@@ -15,6 +15,7 @@ from open_data_pvnet.utils.data_uploader import (
     _validate_token,
     _ensure_repository,
     create_tar_archive,
+    create_zarr_zip,
     _upload_archive,
     upload_to_huggingface,
 )
@@ -70,6 +71,12 @@ def mock_hf_api():
 @pytest.fixture
 def mock_tarfile():
     with patch("tarfile.open") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_zipstore():
+    with patch("zarr.storage.ZipStore") as mock:
         yield mock
 
 
@@ -240,6 +247,49 @@ def test_create_tar_archive(tmp_path, mock_tarfile):
     mock_tarfile.assert_called_once()
 
 
+@patch("zarr.open")
+def test_create_zarr_zip(mock_zarr_open, tmp_path):
+    """Test creating a Zarr zip archive."""
+    # Setup
+    folder_path = tmp_path / "test_folder.zarr"
+    folder_path.mkdir()
+
+    # Create a mock source store and group
+    mock_group = Mock()
+    mock_zarr_open.return_value = mock_group
+
+    with (
+        patch("open_data_pvnet.utils.data_uploader.ZipStore") as mock_zip_store,
+        patch("zarr.DirectoryStore") as mock_dir_store,
+        patch("zarr.copy_store") as mock_copy_store,
+    ):
+        # Setup mock context manager for ZipStore
+        mock_zip_store.return_value.__enter__.return_value = Mock()
+
+        # Run the function
+        archive_path = create_zarr_zip(folder_path, "test.zarr.zip")
+
+        # Assertions
+        assert archive_path == folder_path.parent / "test.zarr.zip"
+        mock_zarr_open.assert_called_once_with(str(folder_path))
+        mock_dir_store.assert_called_once_with(str(folder_path))
+        mock_zip_store.assert_called_once_with(str(archive_path), mode="w")
+        mock_copy_store.assert_called_once()
+
+
+def test_create_zarr_zip_invalid_zarr(tmp_path):
+    """Test creating a Zarr zip archive with invalid Zarr directory."""
+    folder_path = tmp_path / "test_folder.zarr"
+    folder_path.mkdir()
+
+    with patch("zarr.open", side_effect=Exception("Invalid Zarr")):
+        with pytest.raises(RuntimeError) as exc_info:
+            create_zarr_zip(folder_path, "test.zarr.zip")
+
+        assert "Failed to create Zarr zip archive" in str(exc_info.value)
+        assert "Invalid Zarr" in str(exc_info.value)
+
+
 def test_create_tar_archive_existing_no_overwrite(tmp_path):
     folder_path = tmp_path / "test_folder"
     folder_path.mkdir()
@@ -249,16 +299,27 @@ def test_create_tar_archive_existing_no_overwrite(tmp_path):
     assert result == archive_path
 
 
+def test_create_zarr_zip_existing_no_overwrite(tmp_path):
+    """Test that existing archives are not overwritten when overwrite=False."""
+    folder_path = tmp_path / "test_folder.zarr"
+    folder_path.mkdir()
+    archive_path = tmp_path / "test.zarr.zip"
+    archive_path.touch()  # Create empty file
+
+    result = create_zarr_zip(folder_path, "test.zarr.zip", overwrite=False)
+    assert result == archive_path
+
+
 # Tests for _upload_archive
 def test_upload_archive_success(mock_hf_api):
-    archive_path = Path("test.tar.gz")
-    _upload_archive(mock_hf_api, archive_path, "test/dataset", "test_token", False)
+    archive_path = Path("test.zarr.zip")
+    _upload_archive(mock_hf_api, archive_path, "test/dataset", "test_token", False, 2024, 1, 1)
     mock_hf_api.upload_file.assert_called_once()
 
 
 def test_upload_archive_with_overwrite(mock_hf_api):
-    archive_path = Path("test.tar.gz")
-    _upload_archive(mock_hf_api, archive_path, "test/dataset", "test_token", True)
+    archive_path = Path("test.zarr.zip")
+    _upload_archive(mock_hf_api, archive_path, "test/dataset", "test_token", True, 2024, 1, 1)
     mock_hf_api.delete_file.assert_called_once()
     mock_hf_api.upload_file.assert_called_once()
 
@@ -271,23 +332,25 @@ def test_upload_to_huggingface_success(mock_load_config, mock_config, tmp_path):
     with (
         patch("open_data_pvnet.utils.data_uploader._validate_token") as mock_validate_token,
         patch("open_data_pvnet.utils.data_uploader._ensure_repository") as mock_ensure_repo,
-        patch("open_data_pvnet.utils.data_uploader.create_tar_archive") as mock_create_tar,
+        patch("open_data_pvnet.utils.data_uploader.create_zarr_zip") as mock_create_archive,
         patch("open_data_pvnet.utils.data_uploader._upload_archive") as mock_upload,
         patch("pathlib.Path.exists") as mock_exists,
         patch("pathlib.Path.unlink") as mock_unlink,
-    ):  # Add this line
+    ):
         mock_validate_token.return_value = (Mock(), "test_token")
-        mock_create_tar.return_value = tmp_path / "test.tar.gz"
+        mock_create_archive.return_value = tmp_path / "test.zarr.zip"
         mock_exists.return_value = True
 
-        upload_to_huggingface(Path("config.yaml"), "test_folder")
+        upload_to_huggingface(
+            Path("config.yaml"), "test_folder", 2024, 1, 1, overwrite=False, archive_type="zarr.zip"
+        )
 
         mock_load_config.assert_called_once()
         mock_validate_token.assert_called_once()
         mock_ensure_repo.assert_called_once()
-        mock_create_tar.assert_called_once()
+        mock_create_archive.assert_called_once()
         mock_upload.assert_called_once()
-        mock_unlink.assert_called_once()  # Verify the cleanup was attempted
+        mock_unlink.assert_called_once()
 
 
 def test_upload_to_huggingface_missing_folder(mock_config):
@@ -297,8 +360,16 @@ def test_upload_to_huggingface_missing_folder(mock_config):
         patch("pathlib.Path.exists") as mock_exists,
     ):
         mock_load_config.return_value = mock_config
-        mock_validate_token.return_value = (Mock(), "test_token")  # Add this line
-        mock_exists.return_value = False  # Simulate missing folder
+        mock_validate_token.return_value = (Mock(), "test_token")
+        mock_exists.return_value = False
 
         with pytest.raises(FileNotFoundError):
-            upload_to_huggingface(Path("config.yaml"), "nonexistent_folder")
+            upload_to_huggingface(
+                Path("config.yaml"),
+                "nonexistent_folder",
+                2024,
+                1,
+                1,
+                overwrite=False,
+                archive_type="zarr.zip",
+            )
