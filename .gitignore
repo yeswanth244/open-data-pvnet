@@ -91,3 +91,6 @@ node_modules/
 
 # Twine / PyPI
 .pypirc
+
+# Data
+data/
