@@ -155,6 +155,9 @@ def main():
 
     If you want to use a tar archive, you can do so with the following command:
     open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --hour 12 --region uk -o --archive-type tar
+
+    If you want to load the data, you can do so with the following command:
+    open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk
     """
     load_env_and_setup_logger()
     parser = configure_parser()
