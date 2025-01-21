@@ -17,7 +17,7 @@ def test_configure_parser():
     args = parser.parse_args(["--list", "providers"])
     assert args.list == "providers"
 
-    # Test metoffice command
+    # Test metoffice archive command
     args = parser.parse_args(
         [
             "metoffice",
@@ -44,7 +44,35 @@ def test_configure_parser():
     assert args.hour == 12
     assert args.region == "global"
     assert args.archive_type == "zarr.zip"
-    assert not args.overwrite  # Default should be False
+    assert not args.overwrite
+
+    # Test metoffice load command
+    args = parser.parse_args(
+        [
+            "metoffice",
+            "load",
+            "--year",
+            "2024",
+            "--month",
+            "3",
+            "--day",
+            "1",
+            "--hour",
+            "12",
+            "--region",
+            "uk",
+            "--chunks",
+            "time:24,latitude:100",
+        ]
+    )
+    assert args.command == "metoffice"
+    assert args.operation == "load"
+    assert args.year == 2024
+    assert args.month == 3
+    assert args.day == 1
+    assert args.hour == 12
+    assert args.region == "uk"
+    assert args.chunks == "time:24,latitude:100"
 
     # Test gfs command with tar archive type
     args = parser.parse_args(
@@ -85,13 +113,13 @@ def test_load_env_and_setup_logger_failure(mock_load_env):
         load_env_and_setup_logger()
 
 
-@patch("open_data_pvnet.main.handle_archive")
+@patch("open_data_pvnet.main.handle_load")
 @patch("open_data_pvnet.main.load_env_and_setup_logger")
-def test_main_metoffice(mock_load_env, mock_handle_archive):
-    # Test metoffice command
+def test_main_metoffice_load(mock_load_env, mock_handle_load):
+    # Test metoffice load command
     test_args = [
         "metoffice",
-        "archive",
+        "load",
         "--year",
         "2024",
         "--month",
@@ -101,21 +129,21 @@ def test_main_metoffice(mock_load_env, mock_handle_archive):
         "--hour",
         "12",
         "--region",
-        "global",
-        "--archive-type",
-        "zarr.zip",
+        "uk",
+        "--chunks",
+        "time:24,latitude:100",
     ]
     with patch("sys.argv", ["script"] + test_args):
         main()
-        mock_handle_archive.assert_called_once_with(
+        mock_handle_load.assert_called_once_with(
             provider="metoffice",
             year=2024,
             month=3,
             day=1,
             hour=12,
-            region="global",
+            region="uk",
             overwrite=False,
-            archive_type="zarr.zip",
+            chunks="time:24,latitude:100",
         )
 
 
