@@ -2,12 +2,47 @@ import zarr
 from pathlib import Path
 import xarray as xr
 import logging
-from typing import Union, Optional
+from typing import Union, Optional, List
 from huggingface_hub import hf_hub_download
 
 logger = logging.getLogger(__name__)
 
 DATASET_REPO = "openclimatefix/met-office-uk-deterministic-solar"
+
+
+def download_from_hf(repo_path: str, local_path: Path) -> None:
+    """Download a file from HuggingFace."""
+    logger.info(f"Downloading {repo_path} from Hugging Face...")
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    hf_hub_download(
+        repo_id=DATASET_REPO,
+        filename=repo_path,
+        local_dir=".",
+        repo_type="dataset",
+    )
+    logger.info(f"Successfully downloaded to {local_path}")
+
+
+def get_zarr_groups(store: zarr.storage.ZipStore) -> List[str]:
+    """Get all top-level Zarr groups from the store."""
+    return [k.split("/")[0] for k in store.keys() if k.endswith(".zarr/.zgroup")]
+
+
+def open_zarr_group(
+    store: zarr.storage.ZipStore, group: str, chunks: Optional[dict], consolidated: bool
+) -> xr.Dataset:
+    """Open a single Zarr group as an xarray Dataset."""
+    return xr.open_zarr(store, group=group, chunks=chunks, consolidated=consolidated)
+
+
+def merge_datasets(datasets: List[xr.Dataset]) -> xr.Dataset:
+    """Merge multiple datasets into one and log the result."""
+    ds = xr.merge(datasets, compat="override")
+    logger.info("Dataset info:")
+    logger.info(f"Variables: {list(ds.variables)}")
+    logger.info(f"Dimensions: {dict(ds.dims)}")
+    logger.info(f"Coordinates: {list(ds.coords)}")
+    return ds
 
 
 def load_zarr_data(
@@ -36,49 +71,38 @@ def load_zarr_data(
         ValueError: If the file doesn't exist or isn't a .zarr.zip file
         RuntimeError: If there's an error loading the dataset
     """
-    archive_path = Path(archive_path)
-    local_path = Path("data") / archive_path  # Add data prefix for local storage
-
-    if not local_path.exists() and download:
-        try:
-            # Convert local path to repository path (data/year/month/day/file.zarr.zip)
-            repo_path = f"data/{str(archive_path)}"
-            logger.info(f"Downloading {repo_path} from Hugging Face...")
-
-            # Ensure parent directory exists
-            local_path.parent.mkdir(parents=True, exist_ok=True)
-
-            # Download the file from Hugging Face
-            hf_hub_download(
-                repo_id=DATASET_REPO,
-                filename=repo_path,
-                local_dir=".",  # Download to current directory
-                repo_type="dataset",
-            )
-            logger.info(f"Successfully downloaded to {local_path}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to download dataset from Hugging Face: {e}")
-
-    if not local_path.exists():
-        raise ValueError(f"Archive not found: {local_path}")
-
-    if not str(local_path).endswith(".zarr.zip"):
-        raise ValueError(f"File must be a .zarr.zip archive: {local_path}")
-
+    store = None
     try:
-        # Open the zip store
+        archive_path = Path(archive_path)
+        local_path = archive_path
+
+        if not local_path.exists() and download:
+            download_from_hf(str(archive_path), local_path)
+
+        logger.info(f"Opening zarr store from {local_path}")
+        logger.info(f"File size: {local_path.stat().st_size / (1024*1024):.2f} MB")
+
         store = zarr.storage.ZipStore(str(local_path), mode="r")
+        zarr_groups = get_zarr_groups(store)
 
-        # Load the dataset with optional chunking and explicit consolidated setting
-        ds = xr.open_zarr(store, chunks=chunks, consolidated=consolidated)
+        datasets = []
+        for group in zarr_groups:
+            try:
+                group_ds = open_zarr_group(store, group, chunks, consolidated)
+                datasets.append(group_ds)
+            except Exception as e:
+                logger.warning(f"Could not open group {group}: {e}")
+                continue
 
-        logger.info(f"Successfully loaded dataset from {local_path}")
-        return ds
+        if datasets:
+            return merge_datasets(datasets)
+        else:
+            raise ValueError("No valid datasets found in the Zarr store")
 
     except Exception as e:
-        raise RuntimeError(f"Error loading zarr dataset: {e}")
+        logger.error(f"Error loading zarr dataset: {e}")
+        raise
 
     finally:
-        # Make sure to close the store
-        if "store" in locals():
+        if store is not None:
             store.close()
