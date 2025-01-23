@@ -57,6 +57,11 @@ def add_provider_parser(subparsers, provider_name):
         type=str,
         help="Chunking specification in format 'dim1:size1,dim2:size2' (e.g., 'time:24,latitude:100')",
     )
+    load_parser.add_argument(
+        "--remote",
+        action="store_true",
+        help="Load data lazily from HuggingFace without downloading",
+    )
 
 
 def _add_common_arguments(parser, provider_name):
@@ -103,6 +108,7 @@ def handle_load(provider: str, year: int, month: int, day: int, **kwargs):
     """Handle loading archived data."""
     hour = kwargs.get("hour", 0)  # Default to hour 0 if not specified
     chunks = parse_chunks(kwargs.get("chunks"))
+    remote = kwargs.get("remote", False)
 
     # Construct the archive path based on provider and parameters
     # Format: data/2023/01/16/2023-01-16-00.zarr.zip
@@ -115,7 +121,12 @@ def handle_load(provider: str, year: int, month: int, day: int, **kwargs):
     )
 
     try:
-        dataset = load_zarr_data(archive_path, chunks=chunks)
+        dataset = load_zarr_data(
+            archive_path,
+            chunks=chunks,
+            remote=remote,
+            download=not remote,  # Don't try to download if remote=True
+        )
         logger.info(f"Successfully loaded dataset for {year}-{month:02d}-{day:02d} hour {hour:02d}")
         return dataset
     except Exception as e:
@@ -158,6 +169,9 @@ def main():
 
     If you want to load the data, you can do so with the following command:
     open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk
+
+    # Load remotely without downloading
+    open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk --remote
     """
     load_env_and_setup_logger()
     parser = configure_parser()
@@ -180,6 +194,7 @@ def main():
         "day": args.day,
         "hour": getattr(args, "hour", None),
         "overwrite": args.overwrite,
+        "remote": getattr(args, "remote", False),
     }
 
     # Only add region for Met Office commands
@@ -187,8 +202,10 @@ def main():
         kwargs["region"] = args.region
 
     if args.operation == "archive":
-        kwargs["archive_type"] = args.archive_type
-        handle_archive(**kwargs)
+        # Remove remote parameter for archive operation
+        archive_kwargs = {k: v for k, v in kwargs.items() if k != "remote"}
+        archive_kwargs["archive_type"] = args.archive_type
+        handle_archive(**archive_kwargs)
     elif args.operation == "load":
         kwargs["chunks"] = getattr(args, "chunks", None)
         handle_load(**kwargs)

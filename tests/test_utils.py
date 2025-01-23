@@ -6,6 +6,8 @@ import pytest
 import numpy as np
 import xarray as xr
 import yaml
+import pandas as pd
+from huggingface_hub.utils import EntryNotFoundError
 
 from open_data_pvnet.utils.config_loader import load_config
 from open_data_pvnet.utils.env_loader import load_environment_variables
@@ -19,6 +21,7 @@ from open_data_pvnet.utils.data_uploader import (
     _upload_archive,
     upload_to_huggingface,
 )
+from open_data_pvnet.utils.data_downloader import load_zarr_data, restructure_dataset
 
 
 # Fixtures
@@ -78,6 +81,34 @@ def mock_tarfile():
 def mock_zipstore():
     with patch("zarr.storage.ZipStore") as mock:
         yield mock
+
+
+@pytest.fixture
+def sample_zarr_dataset():
+    """Create a sample dataset that mimics the Met Office data structure."""
+    # Create sample data
+    times = pd.date_range("2024-01-01", periods=24, freq="h")
+    lats = np.linspace(49, 61, 970)
+    lons = np.linspace(-10, 2, 1042)
+
+    # Create a dataset with similar structure to Met Office data
+    ds = xr.Dataset(
+        {
+            "air_temperature": (
+                ["projection_y_coordinate", "projection_x_coordinate"],
+                np.random.rand(970, 1042),
+            ),
+            "height": np.array([10]),
+        },
+        coords={
+            "projection_y_coordinate": lats,
+            "projection_x_coordinate": lons,
+            "forecast_period": np.array([0, 1, 2, 3]),
+            "forecast_reference_time": np.datetime64("2024-01-01"),
+            "time": times,
+        },
+    )
+    return ds
 
 
 def test_load_config_valid_yaml(tmp_path):
@@ -373,3 +404,100 @@ def test_upload_to_huggingface_missing_folder(mock_config):
                 overwrite=False,
                 archive_type="zarr.zip",
             )
+
+
+def test_restructure_dataset(sample_zarr_dataset):
+    """Test the dataset restructuring functionality."""
+    # Restructure the dataset
+    restructured_ds = restructure_dataset(sample_zarr_dataset)
+
+    # Check that the dimensions were properly renamed
+    assert "step" in restructured_ds.dims
+    assert "initialization_time" in restructured_ds.coords
+
+    # Check that unnecessary coordinates were removed
+    assert "height" not in restructured_ds.coords
+    assert "bnds" not in restructured_ds.dims
+
+    # Check that spatial dimensions were preserved
+    assert "projection_x_coordinate" in restructured_ds.dims
+    assert "projection_y_coordinate" in restructured_ds.dims
+
+
+@patch("fsspec.get_mapper")
+def test_load_zarr_data_remote(mock_get_mapper, sample_zarr_dataset):
+    """Test remote loading of Zarr data."""
+    # Mock the mapper to return our sample dataset
+    mock_mapper = Mock()
+    mock_mapper._store_version = 2  # Set zarr version
+    mock_get_mapper.return_value = mock_mapper
+
+    # Create a mock zarr root with group_keys method
+    mock_root = Mock()
+    mock_root.group_keys.return_value = ["group1.zarr"]
+
+    with (
+        patch("xarray.open_zarr") as mock_open_zarr,
+        patch("zarr.open", return_value=mock_root) as mock_zarr_open,
+    ):
+        mock_open_zarr.return_value = sample_zarr_dataset
+
+        # Test remote loading
+        ds = load_zarr_data("data/2024/01/01/2024-01-01-00.zarr.zip", remote=True)
+
+        # Check that fsspec was called with the correct URL
+        mock_get_mapper.assert_called_once()
+        assert "zip::simplecache::" in mock_get_mapper.call_args[0][0]
+
+        # Verify zarr.open was called
+        mock_zarr_open.assert_called_once()
+
+        # Verify the dataset was restructured
+        assert "step" in ds.dims
+        assert "initialization_time" in ds.coords
+        assert "height" not in ds.coords
+
+
+@patch("zarr.storage.ZipStore")
+def test_load_zarr_data_local(mock_zipstore, sample_zarr_dataset, tmp_path):
+    """Test local loading of Zarr data."""
+    # Create a mock zarr store
+    mock_store = Mock()
+    mock_store._store_version = 2  # Set zarr version
+    mock_zipstore.return_value.__enter__.return_value = mock_store
+
+    with (
+        patch("xarray.open_zarr") as mock_open_zarr,
+        patch("open_data_pvnet.utils.data_downloader.get_zarr_groups") as mock_get_groups,
+        patch("open_data_pvnet.utils.data_downloader.open_zarr_group") as mock_open_group,
+    ):
+        mock_open_zarr.return_value = sample_zarr_dataset
+        mock_get_groups.return_value = ["group1.zarr"]  # Mock a group
+        mock_open_group.return_value = sample_zarr_dataset
+
+        # Create a temporary zarr file
+        test_file = tmp_path / "test.zarr.zip"
+        test_file.touch()
+
+        # Test local loading
+        ds = load_zarr_data(test_file)
+
+        # Verify the dataset was restructured
+        assert "step" in ds.dims
+        assert "initialization_time" in ds.coords
+        assert "height" not in ds.coords
+
+
+def test_load_zarr_data_nonexistent_file():
+    """Test loading from a nonexistent file."""
+    with (
+        patch("pathlib.Path.exists", return_value=False),
+        pytest.raises((FileNotFoundError, EntryNotFoundError)),  # Accept either error
+    ):
+        load_zarr_data("nonexistent/file.zarr.zip", remote=False)
+
+
+def test_load_zarr_data_invalid_url():
+    """Test loading from an invalid remote URL."""
+    with pytest.raises(Exception):
+        load_zarr_data("invalid/path.zarr.zip", remote=True)

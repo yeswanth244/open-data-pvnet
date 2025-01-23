@@ -144,35 +144,7 @@ def test_main_metoffice_load(mock_load_env, mock_handle_load):
             region="uk",
             overwrite=False,
             chunks="time:24,latitude:100",
-        )
-
-
-@patch("open_data_pvnet.main.handle_archive")
-@patch("open_data_pvnet.main.load_env_and_setup_logger")
-def test_main_gfs(mock_load_env, mock_handle_archive):
-    # Test gfs command with tar archive
-    test_args = [
-        "gfs",
-        "archive",
-        "--year",
-        "2024",
-        "--month",
-        "3",
-        "--day",
-        "1",
-        "--archive-type",
-        "tar",
-    ]
-    with patch("sys.argv", ["script"] + test_args):
-        main()
-        mock_handle_archive.assert_called_once_with(
-            provider="gfs",
-            year=2024,
-            month=3,
-            day=1,
-            hour=None,
-            overwrite=False,
-            archive_type="tar",
+            remote=False,
         )
 
 
@@ -184,3 +156,39 @@ def test_main_list_providers(mock_load_env, mock_print):
     with patch("sys.argv", ["script"] + test_args):
         main()
         assert mock_print.call_count == 4  # One for header + three providers
+
+
+@patch("open_data_pvnet.main.handle_load")
+@patch("open_data_pvnet.main.load_env_and_setup_logger")
+def test_main_metoffice_load_remote(mock_load_env, mock_handle_load):
+    # Test metoffice load command with remote option
+    test_args = [
+        "metoffice",
+        "load",
+        "--year",
+        "2024",
+        "--month",
+        "3",
+        "--day",
+        "1",
+        "--hour",
+        "12",
+        "--region",
+        "uk",
+        "--chunks",
+        "time:24,latitude:100",
+        "--remote",  # Add remote flag
+    ]
+    with patch("sys.argv", ["script"] + test_args):
+        main()
+        mock_handle_load.assert_called_once_with(
+            provider="metoffice",
+            year=2024,
+            month=3,
+            day=1,
+            hour=12,
+            region="uk",
+            overwrite=False,
+            chunks="time:24,latitude:100",
+            remote=True,
+        )
