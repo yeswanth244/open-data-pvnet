@@ -4,6 +4,7 @@ import xarray as xr
 import logging
 from typing import Union, Optional, List
 from huggingface_hub import hf_hub_download
+import fsspec
 
 logger = logging.getLogger(__name__)
 
@@ -45,43 +46,85 @@ def merge_datasets(datasets: List[xr.Dataset]) -> xr.Dataset:
     return ds
 
 
-def load_zarr_data(
-    archive_path: Union[str, Path],
-    chunks: Optional[dict] = None,
-    download: bool = True,
-    consolidated: bool = False,
-) -> xr.Dataset:
+def restructure_dataset(ds: xr.Dataset) -> xr.Dataset:
     """
-    Load a zarr dataset from a zip archive using xarray. If the file doesn't exist locally
-    and download=True, it will attempt to download it from Hugging Face first.
+    Restructure the dataset to have proper forecast dimensions and remove unnecessary coordinates.
 
     Args:
-        archive_path (Union[str, Path]): Path to the .zarr.zip file
-        chunks (Optional[dict]): Dictionary specifying chunk sizes for each dimension.
-            Example: {'time': 24, 'latitude': 100, 'longitude': 100}
-            If None, will use the original chunking from the zarr store.
-        download (bool): Whether to download the file from Hugging Face if not found locally
-        consolidated (bool): Whether to use consolidated metadata when opening the zarr store.
-            Set to False to avoid the warning about non-consolidated metadata.
+        ds (xr.Dataset): Original dataset with flat structure
 
     Returns:
-        xr.Dataset: The loaded dataset
-
-    Raises:
-        ValueError: If the file doesn't exist or isn't a .zarr.zip file
-        RuntimeError: If there's an error loading the dataset
+        xr.Dataset: Restructured dataset with proper dimensions
     """
+    # Convert forecast_period and forecast_reference_time to dimensions if they aren't already
+    if "forecast_period" in ds.coords and "forecast_period" not in ds.dims:
+        ds = ds.expand_dims("forecast_period")
+
+    # Remove unnecessary coordinates
+    if "height" in ds.coords:
+        ds = ds.drop_vars("height")
+
+    # Remove bounds if they exist and aren't needed
+    if "bnds" in ds.dims:
+        for var in list(ds.variables):
+            if "bnds" in ds[var].dims:
+                ds = ds.drop_vars(var)
+
+    # Rename dimensions to be more intuitive
+    dim_mapping = {"forecast_period": "step", "forecast_reference_time": "initialization_time"}
+    ds = ds.rename(dim_mapping)
+
+    logger.info("Restructured dataset dimensions:")
+    logger.info(f"Original dims: {list(ds.dims)}")
+    logger.info(f"Original coords: {list(ds.coords)}")
+
+    return ds
+
+
+def get_hf_url(archive_path: Union[str, Path]) -> str:
+    """Construct the HuggingFace URL for a given archive path."""
+    return f"https://huggingface.co/datasets/{DATASET_REPO}/resolve/main/{archive_path}"
+
+
+def _load_remote_zarr(
+    url: str, chunks: Optional[dict], consolidated: bool, restructure: bool
+) -> xr.Dataset:
+    """Load a zarr dataset remotely using fsspec."""
+    logger.info(f"Loading dataset remotely from: {url}")
+    mapper = fsspec.get_mapper(f"zip::simplecache::{url}")
+
+    # Get all groups from the store
+    root = zarr.open(mapper, mode="r")
+    zarr_groups = [k for k in root.group_keys() if k.endswith(".zarr")]
+
+    # Open each group as a dataset
+    datasets = []
+    for group in zarr_groups:
+        try:
+            group_ds = xr.open_zarr(mapper, group=group, consolidated=consolidated, chunks=chunks)
+            datasets.append(group_ds)
+        except Exception as e:
+            logger.warning(f"Could not open group {group}: {e}")
+            continue
+
+    if not datasets:
+        raise ValueError("No valid datasets found in the Zarr store")
+
+    ds = merge_datasets(datasets)
+    if restructure:
+        ds = restructure_dataset(ds)
+    return ds
+
+
+def _load_local_zarr(
+    local_path: Path, chunks: Optional[dict], consolidated: bool, restructure: bool
+) -> xr.Dataset:
+    """Load a zarr dataset from a local file."""
+    logger.info(f"Opening zarr store from {local_path}")
+    logger.info(f"File size: {local_path.stat().st_size / (1024*1024):.2f} MB")
+
     store = None
     try:
-        archive_path = Path(archive_path)
-        local_path = archive_path
-
-        if not local_path.exists() and download:
-            download_from_hf(str(archive_path), local_path)
-
-        logger.info(f"Opening zarr store from {local_path}")
-        logger.info(f"File size: {local_path.stat().st_size / (1024*1024):.2f} MB")
-
         store = zarr.storage.ZipStore(str(local_path), mode="r")
         zarr_groups = get_zarr_groups(store)
 
@@ -94,15 +137,54 @@ def load_zarr_data(
                 logger.warning(f"Could not open group {group}: {e}")
                 continue
 
-        if datasets:
-            return merge_datasets(datasets)
-        else:
+        if not datasets:
             raise ValueError("No valid datasets found in the Zarr store")
+
+        ds = merge_datasets(datasets)
+        if restructure:
+            ds = restructure_dataset(ds)
+        return ds
+    finally:
+        if store is not None:
+            store.close()
+
+
+def load_zarr_data(
+    archive_path: Union[str, Path],
+    chunks: Optional[dict] = None,
+    download: bool = True,
+    consolidated: bool = False,
+    restructure: bool = True,
+    remote: bool = False,
+) -> xr.Dataset:
+    """
+    Load a zarr dataset from a zip archive using xarray.
+
+    Args:
+        archive_path (Union[str, Path]): Path to the .zarr.zip file
+        chunks (Optional[dict]): Dictionary specifying chunk sizes
+        download (bool): Whether to download if not found locally
+        consolidated (bool): Whether to use consolidated metadata
+        restructure (bool): Whether to restructure the dataset dimensions
+        remote (bool): Whether to load the data lazily from HuggingFace
+
+    Returns:
+        xr.Dataset: The loaded (and optionally restructured) dataset
+    """
+    try:
+        archive_path = Path(archive_path)
+
+        if remote:
+            url = get_hf_url(archive_path)
+            return _load_remote_zarr(url, chunks, consolidated, restructure)
+
+        # Local loading logic
+        local_path = archive_path
+        if not local_path.exists() and download:
+            download_from_hf(str(archive_path), local_path)
+
+        return _load_local_zarr(local_path, chunks, consolidated, restructure)
 
     except Exception as e:
         logger.error(f"Error loading zarr dataset: {e}")
         raise
-
-    finally:
-        if store is not None:
-            store.close()
