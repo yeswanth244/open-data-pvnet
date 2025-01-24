@@ -4,6 +4,8 @@ from open_data_pvnet.scripts.archive import handle_archive
 from open_data_pvnet.utils.env_loader import load_environment_variables
 from open_data_pvnet.utils.data_downloader import load_zarr_data
 from pathlib import Path
+import concurrent.futures
+from typing import List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -157,6 +159,76 @@ def configure_parser():
     return parser
 
 
+def chunk_hours(start: int = 0, end: int = 23, chunk_size: int = 6) -> List[Tuple[int, int]]:
+    """Split hours into chunks."""
+    chunks = []
+    for i in range(start, end + 1, chunk_size):
+        chunk_end = min(i + chunk_size - 1, end)
+        chunks.append((i, chunk_end))
+    return chunks
+
+
+def archive_hours_chunk(
+    provider: str,
+    year: int,
+    month: int,
+    day: int,
+    hour_range: Tuple[int, int],
+    region: str,
+    overwrite: bool,
+    archive_type: str,
+) -> None:
+    """Archive a chunk of hours."""
+    start_hour, end_hour = hour_range
+    for hour in range(start_hour, end_hour + 1):
+        handle_archive(
+            provider=provider,
+            year=year,
+            month=month,
+            day=day,
+            hour=hour,
+            region=region,
+            overwrite=overwrite,
+            archive_type=archive_type,
+        )
+
+
+def parallel_archive(
+    provider: str,
+    year: int,
+    month: int,
+    day: int,
+    region: str,
+    overwrite: bool,
+    archive_type: str,
+    max_workers: int = 4,
+) -> None:
+    """Archive data in parallel using multiple workers."""
+    hour_chunks = chunk_hours()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [
+            executor.submit(
+                archive_hours_chunk,
+                provider,
+                year,
+                month,
+                day,
+                chunk,
+                region,
+                overwrite,
+                archive_type,
+            )
+            for chunk in hour_chunks
+        ]
+        concurrent.futures.wait(futures)
+
+        # Check for exceptions
+        for future in futures:
+            if future.exception():
+                raise future.exception()
+
+
 def main():
     """Entry point for the Open Data PVNet CLI tool.
 
@@ -202,10 +274,22 @@ def main():
         kwargs["region"] = args.region
 
     if args.operation == "archive":
-        # Remove remote parameter for archive operation
-        archive_kwargs = {k: v for k, v in kwargs.items() if k != "remote"}
-        archive_kwargs["archive_type"] = args.archive_type
-        handle_archive(**archive_kwargs)
+        # If specific hour is provided, use regular archiving
+        if kwargs["hour"] is not None:
+            archive_kwargs = {k: v for k, v in kwargs.items() if k != "remote"}
+            archive_kwargs["archive_type"] = args.archive_type
+            handle_archive(**archive_kwargs)
+        else:
+            # Use parallel archiving for full day
+            parallel_archive(
+                provider=kwargs["provider"],
+                year=kwargs["year"],
+                month=kwargs["month"],
+                day=kwargs["day"],
+                region=kwargs["region"],
+                overwrite=kwargs["overwrite"],
+                archive_type=args.archive_type,
+            )
     elif args.operation == "load":
         kwargs["chunks"] = getattr(args, "chunks", None)
         handle_load(**kwargs)
