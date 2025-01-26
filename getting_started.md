@@ -117,7 +117,15 @@ For contributors unfamiliar with these concepts, the [Machine Learning Terms](#m
 
 Datasets form the backbone of solar forecasting by providing the historical and real-time data required for model training and evaluation. This project leverages a variety of datasets, including weather, solar generation, and climate data.
 
-For a detailed list of datasets and their descriptions, please refer to the [Datasets Guide](datasets.md).
+### Met Office UK Deterministic (UKV)
+A NWP dataset used for UK solar forecasting. See [Met Office Dataset Documentation](met_office_dataset.md) for detailed information about:
+- Variables and their impact on solar forecasting
+- Dataset structure and format
+- Data quality considerations
+- Access instructions via Hugging Face
+
+### Other Weather Datasets
+For a complete list of available weather datasets and their descriptions, see the [Datasets Guide](datasets.md).
 
 ---
 
