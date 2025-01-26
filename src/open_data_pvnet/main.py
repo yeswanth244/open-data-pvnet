@@ -50,6 +50,12 @@ def add_provider_parser(subparsers, provider_name):
         default="zarr.zip",
         help="Type of archive to create (default: zarr.zip)",
     )
+    archive_parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of concurrent workers for parallel processing (default: 1)",
+    )
 
     # Load operation parser
     load_parser = operation_subparsers.add_parser("load", help="Load archived data")
@@ -232,18 +238,39 @@ def parallel_archive(
 def main():
     """Entry point for the Open Data PVNet CLI tool.
 
-    For example:
+    Examples:
+    ---------
+    Met Office Data:
+        # Archive all hours for a given day with default workers (1)
+        open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --region uk -o
 
-    open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --region uk -o
+        # Archive all hours for a given day with parallel processing with 4 workers
+        open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --region uk -o --workers 4
 
-    If you want to use a tar archive, you can do so with the following command:
-    open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --hour 12 --region uk -o --archive-type tar
+        # Archive global region data for a specific hour
+        open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --hour 12 --region global -o
 
-    If you want to load the data, you can do so with the following command:
-    open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk
+        # Archive as tar instead of zarr.zip
+        open-data-pvnet metoffice archive --year 2023 --month 12 --day 1 --hour 12 --region uk -o --archive-type tar
 
-    # Load remotely without downloading
-    open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk --remote
+    GFS Data:
+        Not implemented yet
+
+    DWD Data:
+        Not implemented yet
+
+    Loading Data:
+        # Load local data with default chunking
+        open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk
+
+        # Load remotely without downloading
+        open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk --remote
+
+        # Load with custom chunking
+        open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --hour 0 --region uk --chunks "time:24,latitude:100,longitude:100"
+
+    List Available Providers:
+        open-data-pvnet --list providers
     """
     load_env_and_setup_logger()
     parser = configure_parser()
@@ -289,6 +316,7 @@ def main():
                 region=kwargs["region"],
                 overwrite=kwargs["overwrite"],
                 archive_type=args.archive_type,
+                max_workers=args.workers,
             )
     elif args.operation == "load":
         kwargs["chunks"] = getattr(args, "chunks", None)
