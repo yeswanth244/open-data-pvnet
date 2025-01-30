@@ -1,3 +1,10 @@
+"""
+# How to run this script independently:
+1. Ensure `ocf-data-sampler` is installed and properly configured.
+2. Set the appropriate dataset path and config file.
+3. Uncomment the main block below to run as a standalone script.
+"""
+
 import logging
 import pandas as pd
 import xarray as xr
@@ -185,12 +192,6 @@ class GFSDataSampler(Dataset):
             logging.error(f"Error during normalization: {e}")
             raise e
 
-"""
-# How to run this script independently:
-1. Ensure `ocf-data-sampler` is installed and properly configured.
-2. Set the appropriate dataset path and config file.
-3. Uncomment the block below to run as a standalone script.
-"""
 
 # # Uncomment the block below to test
 # if __name__ == "__main__":
