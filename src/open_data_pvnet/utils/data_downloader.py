@@ -188,3 +188,78 @@ def load_zarr_data(
     except Exception as e:
         logger.error(f"Error loading zarr dataset: {e}")
         raise
+
+
+def load_zarr_data_for_day(  # noqa: C901
+    base_path: Path, year: int, month: int, day: int, chunks=None, remote=False, download=True
+):
+    """Load and merge all hourly Zarr datasets for a given day."""
+    datasets = []
+    stores = []  # Keep track of stores to close them later
+
+    try:
+        for hour in range(24):
+            archive_path = base_path / f"{year}-{month:02d}-{day:02d}-{hour:02d}.zarr.zip"
+            try:
+                if remote:
+                    dataset = _load_remote_zarr(
+                        get_hf_url(archive_path),
+                        chunks=chunks,
+                        consolidated=False,
+                        restructure=True,
+                    )
+                else:
+                    if not archive_path.exists() and download:
+                        download_from_hf(str(archive_path), archive_path)
+
+                    logger.info(f"Opening zarr store from {archive_path}")
+                    logger.info(f"File size: {archive_path.stat().st_size / (1024*1024):.2f} MB")
+
+                    store = zarr.storage.ZipStore(str(archive_path), mode="r")
+                    stores.append(store)  # Keep track of the store
+
+                    zarr_groups = get_zarr_groups(store)
+                    hour_datasets = []
+
+                    for group in zarr_groups:
+                        try:
+                            group_ds = open_zarr_group(store, group, chunks, False)
+                            hour_datasets.append(group_ds)
+                        except Exception as e:
+                            logger.warning(f"Could not open group {group}: {e}")
+                            continue
+
+                    if not hour_datasets:
+                        raise ValueError("No valid datasets found in the Zarr store")
+
+                    dataset = merge_datasets(hour_datasets)
+                    dataset = restructure_dataset(dataset)
+
+                datasets.append(dataset)
+                logger.info(
+                    f"Successfully loaded dataset for {year}-{month:02d}-{day:02d} hour {hour:02d}"
+                )
+
+            except Exception as e:
+                logger.warning(f"Could not load dataset for hour {hour}: {e}")
+                continue
+
+        if not datasets:
+            raise ValueError(f"No datasets could be loaded for {year}-{month:02d}-{day:02d}")
+
+        # Merge all datasets along the time dimension
+        merged_dataset = xr.concat(datasets, dim="time")
+        logger.info(f"Successfully merged {len(datasets)} hourly datasets")
+
+        # Load the merged dataset into memory before closing stores
+        merged_dataset = merged_dataset.compute()
+
+        return merged_dataset
+
+    finally:
+        # Close all stores in the finally block
+        for store in stores:
+            try:
+                store.close()
+            except Exception as e:
+                logger.warning(f"Error closing store: {e}")
