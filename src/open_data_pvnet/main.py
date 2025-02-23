@@ -263,16 +263,14 @@ def parallel_archive(
 
 def handle_monthly_consolidation(**kwargs):
     """Handle consolidating data into zarr.zip files."""
-    logger.info(f"Received kwargs: {kwargs}")  # Debug line
+    logger.debug(f"Received kwargs: {kwargs}")
     chunks = parse_chunks(kwargs.get("chunks"))
     base_path = Path("data")
-
-    # Ensure required parameters are present
     year = kwargs.get("year")
     month = kwargs.get("month")
     day = kwargs.get("day")
 
-    logger.info(f"Extracted values - year: {year}, month: {month}")  # Debug line
+    logger.debug(f"Extracted values - year: {year}, month: {month}")
 
     if year is None or month is None:
         raise ValueError("Year and month must be specified for consolidation")
