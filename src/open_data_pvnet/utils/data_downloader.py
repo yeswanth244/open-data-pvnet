@@ -274,14 +274,19 @@ def load_zarr_data_for_day(  # noqa: C901
                 logger.warning(f"Error closing store: {e}")
 
 
-def save_consolidated_zarr(dataset: xr.Dataset, output_path: Union[str, Path]) -> None:
+def save_consolidated_zarr(
+    dataset: xr.Dataset, output_path: Union[str, Path], safe_chunks: bool = False
+) -> None:
     """Save a consolidated dataset to zarr format.
 
     Args:
         dataset: The xarray Dataset to save
         output_path: Path where to save the zarr archive
+        safe_chunks: If False, allow chunk sizes that might overlap dask chunks
     """
     logger.info(f"Saving consolidated dataset to {output_path}")
+    temp_dir = None
+
     try:
         # Get the first variable name from the dataset
         first_var = list(dataset.data_vars)[0]
@@ -303,7 +308,14 @@ def save_consolidated_zarr(dataset: xr.Dataset, output_path: Union[str, Path]) -
 
         # Save to temporary zarr directory
         logger.info("Writing to temporary directory...")
-        dataset.to_zarr(temp_dir, mode="w", encoding=encoding, compute=True, consolidated=True)
+        dataset.to_zarr(
+            temp_dir,
+            mode="w",
+            encoding=encoding,
+            compute=True,
+            consolidated=True,
+            safe_chunks=safe_chunks,
+        )
 
         # Create zip archive
         logger.info("Creating zip archive...")
@@ -320,7 +332,7 @@ def save_consolidated_zarr(dataset: xr.Dataset, output_path: Union[str, Path]) -
 
     finally:
         # Cleanup temporary directory
-        if temp_dir.exists():
+        if temp_dir is not None and temp_dir.exists():
             shutil.rmtree(temp_dir)
 
 
@@ -424,6 +436,7 @@ def merge_days_to_month(
     year: int,
     month: int,
     chunks: Optional[dict] = None,
+    safe_chunks: bool = False,
 ) -> Path:
     """Merge all daily zarr.zip files in a month into a single monthly zarr.zip file."""
     logger.info(f"\nMerging daily files for {year}-{month:02d}")
@@ -489,7 +502,7 @@ def merge_days_to_month(
 
     # Save consolidated monthly file
     logger.info(f"Saving monthly dataset to: {monthly_output}")
-    save_consolidated_zarr(monthly_dataset, monthly_output)
+    save_consolidated_zarr(monthly_dataset, monthly_output, safe_chunks=safe_chunks)
     logger.info(f"Successfully created monthly file: {monthly_output}")
 
     # Close all datasets

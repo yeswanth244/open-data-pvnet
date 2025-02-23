@@ -261,11 +261,21 @@ def parallel_archive(
                 raise future.exception()
 
 
-def handle_monthly_consolidation(provider: str, year: int, month: int, **kwargs):
+def handle_monthly_consolidation(**kwargs):
     """Handle consolidating data into zarr.zip files."""
+    logger.info(f"Received kwargs: {kwargs}")  # Debug line
     chunks = parse_chunks(kwargs.get("chunks"))
     base_path = Path("data")
+
+    # Ensure required parameters are present
+    year = kwargs.get("year")
+    month = kwargs.get("month")
     day = kwargs.get("day")
+
+    logger.info(f"Extracted values - year: {year}, month: {month}")  # Debug line
+
+    if year is None or month is None:
+        raise ValueError("Year and month must be specified for consolidation")
 
     try:
         if day is not None:
@@ -284,9 +294,9 @@ def handle_monthly_consolidation(provider: str, year: int, month: int, **kwargs)
             for file in successful_files:
                 logger.info(f"- {file}")
 
-            # Now create the monthly file
+            # Now create the monthly file with safe_chunks=False
             logger.info("\nCreating monthly consolidated file")
-            monthly_file = merge_days_to_month(base_path, year, month, chunks)
+            monthly_file = merge_days_to_month(base_path, year, month, chunks, safe_chunks=False)
             logger.info(f"Successfully created monthly file: {monthly_file}")
         else:
             logger.warning("No daily files were created, cannot create monthly file")
