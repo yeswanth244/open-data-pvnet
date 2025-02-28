@@ -29,7 +29,7 @@ open-data-pvnet metoffice load --year 2023 --month 1 --day 16 --region uk
 
 ```
 
-For detailed usage instructions and examples, see our [Getting Started Guide](getting_started.md#command-line-interface-cli).
+For detailed usage instructions and examples, see our [Getting Started Guide](docs/getting_started.md#command-line-interface-cli).
 
 ## Volunteer Skills/Roles Needed
 
@@ -44,7 +44,7 @@ We are looking for volunteers with the following skills:
 
 ## Getting Started
 
-Ready to dive in? Check out our [Getting Started Guide](getting_started.md) for an introduction to the key concepts and how you can contribute effectively.
+Ready to dive in? Check out our [Getting Started Guide](docs/getting_started.md) for an introduction to the key concepts and how you can contribute effectively.
 
 ---
 
