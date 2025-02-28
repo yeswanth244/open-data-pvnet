@@ -1,6 +1,6 @@
 # 🌞 Open Source Solar Forecasting Project – Volunteers Welcome! 🌞
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![ease of contribution: easy](https://img.shields.io/badge/ease%20of%20contribution:%20easy-32bd50)](https://github.com/openclimatefix/ocf-meta-repo?tab=readme-ov-file#how-easy-is-it-to-get-involved)
@@ -81,6 +81,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jcamier"><img src="https://avatars.githubusercontent.com/u/14153557?v=4?s=100" width="100px;" alt="Jack Camier"/><br /><sub><b>Jack Camier</b></sub></a><br /><a href="#ideas-jcamier" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/alirashidAR"><img src="https://avatars.githubusercontent.com/u/110668489?v=4?s=100" width="100px;" alt="Ali Rashid"/><br /><sub><b>Ali Rashid</b></sub></a><br /><a href="https://github.com/openclimatefix/open-data-pvnet/commits?author=alirashidAR" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/arzoo0511"><img src="https://avatars.githubusercontent.com/u/148741922?v=4?s=100" width="100px;" alt="arzoo0511"/><br /><sub><b>arzoo0511</b></sub></a><br /><a href="https://github.com/openclimatefix/open-data-pvnet/commits?author=arzoo0511" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MAYANK12SHARMA"><img src="https://avatars.githubusercontent.com/u/145884197?v=4?s=100" width="100px;" alt="MAYANK SHARMA"/><br /><sub><b>MAYANK SHARMA</b></sub></a><br /><a href="#infra-MAYANK12SHARMA" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     </tr>
   </tbody>
 </table>
