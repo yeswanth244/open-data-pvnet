@@ -42,6 +42,7 @@ dependencies = [
     "h5netcdf",
     "h5py",
     "pvlive-api",
+    "pytest-mock",
 ]
 
 [project.optional-dependencies]
@@ -55,7 +56,6 @@ dev = [
     "twine",
     "pytest",
     "pytest-cov",
-    "pytest-mock",
     "tomli",
 ]
 

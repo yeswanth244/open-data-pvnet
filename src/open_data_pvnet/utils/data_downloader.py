@@ -42,7 +42,7 @@ def merge_datasets(datasets: List[xr.Dataset]) -> xr.Dataset:
     ds = xr.merge(datasets, compat="override")
     logger.info("Dataset info:")
     logger.info(f"Variables: {list(ds.variables)}")
-    logger.info(f"Dimensions: {dict(ds.dims)}")
+    logger.info(f"Dimensions: {dict(ds.sizes)}")
     logger.info(f"Coordinates: {list(ds.coords)}")
     return ds
 
