@@ -1,0 +1,17 @@
+general:
+  name: "dwd_config"
+  description: "Configuration for DWD data processing"
+
+input_data:
+  nwp:
+    dwd:
+      time_resolution_minutes: 60  # One-hour resolution
+      forecast_minutes: 480  # 8-hour forecast window
+      zarr_path: "s3://ocf-open-data-pvnet/data/dwd.zarr"
+      provider: "dwd"
+      channels:
+        - "temperature"
+        - "cloud_cover"
+        - "wind_speed"
+        - "surface_solar_radiation_downwards"
+      source_url: "https://opendata.dwd.de/weather/nwp/"
