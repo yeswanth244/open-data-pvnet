@@ -86,37 +86,29 @@ def mock_zipstore():
 
 @pytest.fixture
 def sample_zarr_dataset():
-    """
-    Create a sample dataset that mimics the Met Office data structure.
+    """Create a sample dataset that mimics the Met Office data structure."""
+    # Create sample data
+    times = pd.date_range("2024-01-01", periods=24, freq="h")
+    lats = np.linspace(49, 61, 970)
+    lons = np.linspace(-10, 2, 1042)
 
-    - Ensures datetime conversion to nanoseconds.
-    - Includes correct dimensions for air_temperature.
-    - Uses explicit NumPy array casting for consistency.
-    """
-
-    # Define time, latitude, and longitude coordinates
-    times = pd.date_range("2024-01-01", periods=24, freq="h").to_numpy(dtype="datetime64[ns]")
-    lats = np.linspace(49, 61, 970).astype(np.float32)  # Use float32 for compatibility
-    lons = np.linspace(-10, 2, 1042).astype(np.float32)
-
-    # Create a dataset with the expected Met Office structure
+    # Create a dataset with similar structure to Met Office data
     ds = xr.Dataset(
         {
             "air_temperature": (
-                ["time", "projection_y_coordinate", "projection_x_coordinate"],
-                np.random.rand(24, 970, 1042).astype(np.float32),  # Ensure consistent dtype
+                ["projection_y_coordinate", "projection_x_coordinate"],
+                np.random.rand(970, 1042),
             ),
-            "height": (["level"], np.array([10.0], dtype=np.float32)),  # Use level dimension
+            "height": np.array([10]),
         },
         coords={
-            "projection_y_coordinate": ("projection_y_coordinate", lats),
-            "projection_x_coordinate": ("projection_x_coordinate", lons),
-            "forecast_period": ("forecast_period", np.array([0, 1, 2, 3], dtype=np.int32)),
-            "forecast_reference_time": np.array(["2024-01-01T00:00:00"], dtype="datetime64[ns]"),
-            "time": ("time", times),
+            "projection_y_coordinate": lats,
+            "projection_x_coordinate": lons,
+            "forecast_period": np.array([0, 1, 2, 3]),
+            "forecast_reference_time": np.datetime64("2024-01-01"),
+            "time": times,
         },
     )
-
     return ds
 
 

@@ -1,4 +1,4 @@
-import tomllib
+import tomli as tomllib
 import open_data_pvnet
 
 
@@ -19,3 +19,4 @@ def test_version_consistency():
         f"Version mismatch: pyproject.toml has {pyproject_version}, "
         f"but __init__.py has {init_version}"
     )
+
