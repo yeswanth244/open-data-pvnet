@@ -77,7 +77,7 @@ def _add_common_arguments(parser, provider_name):
         )
         parser.add_argument(
             "--region",
-            choices=["eu"],
+            choices=["eu","uk"],
             default="eu",
             help="Specify the DWD dataset region (default: eu)",
         )
